@@ -82,37 +82,59 @@
         <div class="project-modal">
           <span class="close">&times;</span>
           <form>
-              <label for="input-project">Enter project name:</label>
-              <input type="text" id="input-project" minlength="1" required>
-              <button>Add project</button>
+            <label for="input-project">Enter project name:</label>
+            <input type="text" id="input-project" minlength="1" required />
+            <button>Add project</button>
           </form>
         </div>
       </div>
-
 
       <!-- add task modal -->
       <div id="add-task" class="modal">
         <!-- Modal content -->
         <div class="item-modal">
           <span class="close">&times;</span>
-          <form>    
-            <input type="text" id="input-project" minlength="1" required placeholder="Title">
+          <form>
+            <input
+              type="text"
+              id="input-project"
+              minlength="1"
+              required
+              placeholder="Title"
+            />
             <textarea placeholder="Description"></textarea>
             <div class="props-container">
-                <input type="date" id="start" name="trip-start" value="2018-07-22" min="2018-01-01" max="2018-12-31">
-                <div class="project-picker">
-                    <span># Project</span>
+              <input
+                type="date"
+                id="start"
+                name="trip-start"
+                value="2018-07-22"
+                min="2018-01-01"
+                max="2018-12-31"
+              />
+              <div class="project-picker">
+                <span># Project</span>
+              </div>
+              <div class="time-picker">
+                <input
+                  type="datetime-local"
+                  id="meeting-time"
+                  name="meeting-time"
+                  value="2018-06-12T19:30"
+                  min="2018-06-07T00:00"
+                  max="2018-06-14T00:00"
+                />
+              </div>
+              <div class="priority-property">
+                  <div class="icon priority">
                 </div>
-                <div class="time-picker">
-                    <input type="time" id="appt" name="appt" min="09:00" max="18:00">      
-                </div>
+                <span class="priority-text">High</span>
+            </div>
             </div>
             <button>Add task</button>
-           </form>
+          </form>
         </div>
       </div>
-
-
 
       <h1>All tasks</h1>
       <div class="project1">
@@ -120,23 +142,44 @@
         <div class="task-card-container">
           <div class="task-card">
             <div class="icon task-checkbox"><input type="checkbox" /></div>
-            <div class="task-info">
-              <span class="task-title">30 minutes Yoga 🧘</span>
-              <span class="task-due overdue">10:00</span>
+            <div class="task-short-info">
+                <div class="task-info">
+                    <span class="task-title">30 minutes Yoga 🧘</span>
+                    <span class="task-due overdue">10:00</span>
+                </div>
+              <div class="task-action">
+                <div class="icon view"></div>
+                <div class="icon edit"></div>
+                <div class="icon delete"></div>
+              </div>
             </div>
           </div>
           <div class="task-card">
             <div class="icon task-checkbox"><input type="checkbox" /></div>
-            <div class="task-info">
-              <span class="task-title">Drink Beer 🍺</span>
-              <span class="task-due">12:00</span>
+            <div class="task-short-info">
+                <div class="task-info">
+                    <span class="task-title">Drink Beer 🍺</span>
+                    <span class="task-due">12:00</span>
+                </div>
+              <div class="task-action">
+                <div class="icon view"></div>
+                <div class="icon edit"></div>
+                <div class="icon delete"></div>
+              </div>
             </div>
           </div>
-          <div class="task-card">
+          <div class="task-card completed">
             <div class="icon task-checkbox"><input type="checkbox" /></div>
-            <div class="task-info">
-              <span class="task-title">Fix Computer 💻</span>
-              <span class="task-due">19:00</span>
+            <div class="task-short-info">
+                <div class="task-info">
+                    <span class="task-title">Fix Computer 💻</span>
+                    <span class="task-due">18:00</span>
+                </div>
+              <div class="task-action">
+                <div class="icon view"></div>
+                <div class="icon edit"></div>
+                <div class="icon delete"></div>
+              </div>
             </div>
           </div>
         </div>
@@ -145,28 +188,49 @@
           <span>add task</span>
         </div>
       </div>
-      <div class="project1">
+      <div class="project2">
         <h2>Project 2</h2>
         <div class="task-card-container">
           <div class="task-card">
             <div class="icon task-checkbox"><input type="checkbox" /></div>
-            <div class="task-info">
-              <span class="task-title">30 minutes Yoga 🧘</span>
-              <span class="task-due">10:00</span>
+            <div class="task-short-info">
+                <div class="task-info">
+                    <span class="task-title">30 minutes Yoga 🧘</span>
+                    <span class="task-due overdue">10:00</span>
+                </div>
+              <div class="task-action">
+                <div class="icon view"></div>
+                <div class="icon edit"></div>
+                <div class="icon delete"></div>
+              </div>
             </div>
           </div>
           <div class="task-card">
             <div class="icon task-checkbox"><input type="checkbox" /></div>
-            <div class="task-info">
-              <span class="task-title">Drink Beer 🍺</span>
-              <span class="task-due">12:00</span>
+            <div class="task-short-info">
+                <div class="task-info">
+                    <span class="task-title">Drink Beer 🍺</span>
+                    <span class="task-due">12:00</span>
+                </div>
+              <div class="task-action">
+                <div class="icon view"></div>
+                <div class="icon edit"></div>
+                <div class="icon delete"></div>
+              </div>
             </div>
           </div>
-          <div class="task-card">
+          <div class="task-card completed">
             <div class="icon task-checkbox"><input type="checkbox" /></div>
-            <div class="task-info">
-              <span class="task-title">Fix Computer 💻</span>
-              <span class="task-due">19:00</span>
+            <div class="task-short-info">
+                <div class="task-info">
+                    <span class="task-title">Fix Computer 💻</span>
+                    <span class="task-due">18:00</span>
+                </div>
+              <div class="task-action">
+                <div class="icon view"></div>
+                <div class="icon edit"></div>
+                <div class="icon delete"></div>
+              </div>
             </div>
           </div>
         </div>
@@ -174,6 +238,9 @@
           <div class="icon add-project-task"></div>
           <span>add task</span>
         </div>
+      </div>
+
+
       </div>
     </main>
   </body>

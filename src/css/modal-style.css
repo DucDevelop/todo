@@ -9,6 +9,7 @@ div.item-modal form{
 }
 
 
+div.priority-property,
 input[type="date"],
 div.time-picker,
 div.project-picker {
@@ -25,3 +26,9 @@ div.props-container {
     align-items: center;
     gap: 16px;
 }
+
+div.priority {
+    background-color: red;
+    -webkit-mask-image: url("../../assets/icons/flag.svg");
+    mask-image: url("../../assets/icons/flag.svg");
+  }

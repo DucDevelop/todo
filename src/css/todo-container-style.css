@@ -19,11 +19,18 @@ div.task-card:first-child {
 div.task-checkbox {
   grid-area: 1 / 1 / 2 / 2;
 }
+div.task-short-info {
+  display: flex;
+  /* flex-direction: column; */
+  justify-content: space-between;
+  align-items: center;
+  padding: 0px;
+}
 div.task-info {
   display: flex;
   flex-direction: column;
-  justify-content: center;
   padding: 0px;
+  max-width: 50ch;
 }
 
 span.task-due {
@@ -96,12 +103,38 @@ div.add-project-task-container  {
 div.add-project-task {
     background-image: url("../../assets/icons/plus.svg");
     transform: scale(1.5);
+    display: inline-block;
 }
 
 div.task-checkbox.icon input:hover {
     transform: scale(1.1);
 }
 
+div.task-action {
+    display: flex;
+    gap: 16px;
+    width: 100px;
+    /* width: fit-content; */
+}
+
+div.task-action div.icon {
+    transform: scale(1.3);
+}
+
+div.task-action div.icon:hover {
+    transform: scale(2.0);
+}
+
+
+div.icon.delete {
+    background-image: url("../../assets/icons/trash-can-outline.svg");
+}
+div.icon.edit {
+    background-image: url("../../assets/icons/file-edit-outline.svg");
+}
+div.icon.view {
+    background-image: url("../../assets/icons/magnify-scan.svg");
+}
 
 @keyframes grow {
   from {
