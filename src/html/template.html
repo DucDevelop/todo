@@ -8,26 +8,72 @@
   <body>
     <div class="sidebar">
         <div class="profile">
-            <p>Image line</p>
+            <div class="profile-image"></div>
+            <span class="user-name">DucDevelop</span>
         </div>
 
         <div class="tasks">
-            <div class="add-task"><p>add task</p></div>
+            <div class="add-task">
+                <div class="icon"></div>
+                <span class="add-text">Add task</span>
+            </div>
             <ul>
-                <li>All tasks</li>
-                <li>Due Today</li>
-                <li>Soon</li>
-                <li>Finished</li>
-                <li>Search</li>
+                <li class="selected">      
+                    <div class="task-view">
+                        <div class="icon show-all"></div>
+                        <span class="user-name">All tasks</span>
+                    </div>
+                </li>
+                <li>      
+                    <div class="task-view">
+                        <div class="icon due-today"></div>
+                        <span class="user-name">Due today</span>
+                    </div>
+                </li>
+                <li>      
+                    <div class="task-view">
+                        <div class="icon show-soon"></div>
+                        <span class="user-name">Soon</span>
+                    </div>
+                </li>
+                <li>      
+                    <div class="task-view">
+                        <div class="icon show-finished"></div>
+                        <span class="user-name">Finished</span>
+                    </div>
+                </li>
+                <li>      
+                    <div class="task-view">
+                        <div class="icon show-search"></div>
+                        <span class="user-name">Search</span>
+                    </div>
+                </li>
             </ul>
         </div>
         <div class="projects">
-            <p>Projects</p>
+            <div class="project-view">
+                <div class="icon project-overview"></div>
+                <span class="project-view">My projects</span>
+            </div>
             <ul>
-                <li>Project1</li>
-                <li>Project2</li>
+                <li>  
+                    <div class="project-item">
+                        <div class="icon project-item"></div>
+                        <span class="project-name">Project 1</span>
+                    </div>
+                </li>
+                <li>  
+                    <div class="project-item">
+                        <div class="icon project-item"></div>
+                        <span class="project-name">Project 1</span>
+                    </div>
+                </li>
+
             </ul>
-            <div class="add-task"><p>add Project</p></div>
+            <div class="add-project">
+                <div class="icon"></div>
+                <span class="add-text">Add project</span>
+            </div>
         </div>
     </div>
     <main>

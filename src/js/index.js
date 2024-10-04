@@ -1,6 +1,7 @@
 // dummy data for doing layout
 import { format } from "date-fns";
 import './../css/index-styles.css'
+import './../css/sidebar-styles.css'
 
 const todoItems = [
   {

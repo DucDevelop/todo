@@ -1,0 +1,119 @@
+div.sidebar {
+  background-color: var(--color-bg-sidebar);
+}
+div.sidebar * {
+    font-size: 0.85rem;
+}
+
+div.sidebar li,
+div.sidebar ul {
+  list-style: none;
+  padding: 2px;
+  border-radius: 8px;
+}
+
+div.sidebar div.profile {
+    margin: 12px 0px 32px 0px;
+}
+
+div.sidebar div.profile,
+div.sidebar div.add-task,
+div.sidebar div.add-project,
+div.sidebar div.task-view,
+div.sidebar div.project-view,
+li > div.project-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0px;
+}
+
+div.sidebar div.profile span {
+  font-size: 0.75rem;
+  font-weight: bold;
+}
+
+span.project-view,
+span.add-text {
+    font-weight: bold;
+}
+
+div.profile-image,
+div.icon {
+  display: inline-block;
+  background-repeat: no-repeat;
+  background-position: center center;
+  background-size: cover;
+}
+
+div.profile-image {
+  background-image: url("../../assets/images/profile.jpg");
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+}
+
+div.icon {
+  width: 15px;
+  height: 15px;
+}
+
+div.task-view div.icon,
+div.project-item div.icon {
+  width: 5px;
+  height: 5px;
+}
+
+div.show-all {
+  background-image: url("../../assets/icons/list-box-outline.svg");
+}
+div.due-today {
+  background-image: url("../../assets/icons/calendar-alert-outline.svg");
+}
+div.show-soon {
+  background-image: url("../../assets/icons/calendar-month-outline.svg");
+}
+div.show-finished {
+  background-image: url("../../assets/icons/check-all.svg");
+}
+div.show-search {
+  background-image: url("../../assets/icons/magnify.svg");
+}
+div.project-overview {
+  background-image: url("../../assets/images/profile.jpg");
+  border-radius: 30%;
+}
+
+
+div.sidebar li.selected, 
+div.sidebar li:hover,
+div.add-project:hover,
+div.add-task:hover {
+    background-color: var(--color-selected-sidebar);
+    color: var(--color-font-selected-sidebar);
+    border-radius: 8px;
+    cursor: pointer;
+}
+
+div.add-task,
+div.add-project {
+    color: var(--color-font-selected-sidebar);
+}
+
+div.project-item div.icon,
+div.add-project > div.icon,
+div.add-task > div.icon {
+    background-color: var(--color-font-selected-sidebar);
+    mask-repeat: no-repeat;
+    background-image: none;
+}
+
+div.add-project > div.icon,
+div.add-task > div.icon {
+    -webkit-mask-image: url("../../assets/icons/plus-circle.svg");
+    mask-image: url("../../assets/icons/plus-circle.svg");
+}
+div.project-item div.icon {
+    -webkit-mask-image: url("../../assets/icons/pound.svg");
+    mask-image: url("../../assets/icons/pound.svg");
+}
