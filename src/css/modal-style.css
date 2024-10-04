@@ -1,6 +1,36 @@
 div.modal {
     border: 1px solid black;
     border-radius: 8px;
+    background-color: var(--color-modal-bg-color);
+    background-color: rgb(243, 243, 243);
+    display: block;
+    position: fixed; /* Stay in place */
+    top: 100px;
+    z-index: 100; /* Sit on top */
+    animation-name: animatetop;
+    animation-duration: 0.4s;
+  }
+
+  div.modal-bg {
+    z-index: 1;
+    background-color: var(--color-modal-bg-color);
+    display: none;
+    grid-area: 1 / 1 / 2 / 3;
+  }
+
+
+
+div.modal textarea {
+    resize: none;
+    border: none;
+    border-radius: 8px;
+}
+
+div.modal input[type="text"]{
+    border: none;
+    /* border-bottom: 3px solid var(--color-border-task); */
+    border-radius: 8px;
+    margin-bottom: 10px;
 }
 
 div.item-modal form{
@@ -9,9 +39,7 @@ div.item-modal form{
 }
 
 
-div.priority-property,
-input[type="date"],
-div.time-picker,
+
 div.project-picker {
     width: fit-content;
     height: fit-content;
@@ -19,16 +47,143 @@ div.project-picker {
     border-radius: 8px;
 }
 
+div.time-picker input{
+    border-radius: 8px;
+    border: 1px solid black;
+}
 
 div.props-container {
     display: flex;
     justify-content: start;
     align-items: center;
     gap: 16px;
+    flex-wrap: wrap;
 }
 
-div.priority {
-    background-color: red;
+div.priority-radio div.icon {
     -webkit-mask-image: url("../../assets/icons/flag.svg");
     mask-image: url("../../assets/icons/flag.svg");
   }
+
+
+
+
+div#add-task {
+    width: clamp(750px, 50%, 900px);
+}
+div#add-project {
+    width: fit-content;
+}
+
+div.modal div.props-container * {
+    font-size: 0.75rem;
+}
+
+  div.item-modal input[type="radio"] {
+    /* Add if not using autoprefixer */
+    -webkit-appearance: none;
+    appearance: none;
+    /* For iOS < 15 to remove gradient background */
+    background-color: #fff;
+    /* Not removed via appearance */
+    margin: 0;
+    padding: 0;
+  }
+
+  div.item-modal input[type="radio"] ~ label {
+    padding: 0 5px;
+  }
+  
+  div.priority-radio,
+  div.project-radio {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 0;
+    width: fit-content;
+    border-radius: 8px;
+    border: 1px solid currentColor;
+    color: var(--color-font-noselection);
+  }
+
+  div.item-modal fieldset {
+    display: flex;
+    margin: 0;
+    padding: 0;
+    border: none;
+    gap: 16px;
+  }
+
+  div.item-modal fieldset legend {
+    padding: 0;
+    display: none;
+  }
+
+  /* highlight selected fields */
+  input[type="datetime-local"]:valid,
+  div.priority-radio:has(> input:checked),
+  div.project-radio:has(> input:checked) {
+    color: var(--color-font-default);
+    font-weight: bold;
+    border-width: 2px;
+  }
+
+
+div.icon.priority-low {
+    background-color: var(--color-prioirty-low);
+}
+div.icon.priority-mid {
+    background-color: var(--color-prioirty-mid);
+}
+div.icon.priority-high {
+    background-color: var(--color-prioirty-high);
+}
+
+/* modal button styling */
+div.modal form  button {
+    background-color: var(--color-modal-button);
+    border: none;
+    border-radius: 10px;
+    width: fit-content;
+    color: var( --color-font-modal-button);
+    font-weight: bold;
+    cursor: pointer;
+    flex-grow: 1;
+}
+
+.btn-container {
+    display: flex;
+    justify-content: center;
+}
+
+div.icon.close {
+    background-image: url("../../assets/icons/close-circle-outline.svg");
+    align-self: flex-end;
+    /* padding: 16px; */
+    height: 20px;
+    width: 20px;
+}
+
+
+
+div.priority-radio:not(:has(> input:checked)):hover,
+div.project-radio:not(:has(> input:checked)):hover,
+.btn-container:hover,
+div.icon.close:hover {
+    opacity: 0.5;
+}
+
+
+div.project-modal,
+div.item-modal {
+    display: flex;
+    flex-direction: column;
+    gap: 16px
+}
+
+
+/* modal animation */
+@keyframes animatetop {
+    from {top: -300px; opacity: 0}
+    to {top: 100px; opacity: 1}
+}

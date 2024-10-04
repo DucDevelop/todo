@@ -6,6 +6,9 @@
     <title>To Do</title>
   </head>
   <body>
+
+    <div class="modal-bg"></div>
+
     <div class="sidebar">
       <div class="profile">
         <div class="profile-image"></div>
@@ -76,24 +79,28 @@
       </div>
     </div>
     <main>
+
       <!-- Add project modal -->
       <div id="add-project" class="modal">
         <!-- Modal content -->
         <div class="project-modal">
-          <span class="close">&times;</span>
+            <div class="icon close">
+            </div>
           <form>
             <label for="input-project">Enter project name:</label>
-            <input type="text" id="input-project" minlength="1" required />
-            <button>Add project</button>
+            <input type="text" id="input-project" minlength="1" placeholder="Project name" required >
+            <div class="btn-container">
+                <button>Add project</button>
+            </div>
           </form>
         </div>
       </div>
-
       <!-- add task modal -->
       <div id="add-task" class="modal">
         <!-- Modal content -->
         <div class="item-modal">
-          <span class="close">&times;</span>
+            <div class="icon close">
+            </div>
           <form>
             <input
               type="text"
@@ -102,39 +109,61 @@
               required
               placeholder="Title"
             />
-            <textarea placeholder="Description"></textarea>
+            <textarea rows="5" placeholder="Description..."></textarea>
             <div class="props-container">
-              <input
-                type="date"
-                id="start"
-                name="trip-start"
-                value="2018-07-22"
-                min="2018-01-01"
-                max="2018-12-31"
-              />
-              <div class="project-picker">
-                <span># Project</span>
-              </div>
-              <div class="time-picker">
-                <input
-                  type="datetime-local"
-                  id="meeting-time"
-                  name="meeting-time"
-                  value="2018-06-12T19:30"
-                  min="2018-06-07T00:00"
-                  max="2018-06-14T00:00"
-                />
-              </div>
-              <div class="priority-property">
-                  <div class="icon priority">
+                <div class="time-picker">
+                    <input
+                      type="datetime-local"
+                      id="deadline-time"
+                      name="deadline-time"
+                    required>
                 </div>
-                <span class="priority-text">High</span>
+            <fieldset>
+                <legend>Select your project</legend>
+                <div class="project-radio">
+                    <input required checked type="radio" id="contactChoice1" name="project" value="p1">
+                    <label for="contactChoice1">#No project</label>
+                </div>
+                <div class="project-radio">
+                    <input type="radio" id="contactChoice2" name="project" value="p2">
+                    <label for="contactChoice2">#Project 1</label>
+                </div>
+                <div class="project-radio">
+                    <input type="radio" id="contactChoice3" name="project" value="p3">
+                    <label for="contactChoice3">#Project 2</label>
+                </div>
+            </fieldset>
+
+            <fieldset>
+                <legend>Select your priority</legend>
+                <div class="priority-radio">
+                    <input required checked type="radio" id="priority-high" name="priority" value="high">
+                    <div class="icon priority-high">
+                    </div>
+                    <label for="priority-high">High</label>
+                </div>
+                <div class="priority-radio">
+                    <input type="radio" id="priority-mid" name="priority" value="mid">
+                    <div class="icon priority-mid">
+                    </div>
+                    <label for="priority-mid">Mid</label>
+                </div>
+                <div class="priority-radio">
+                    <input type="radio" id="priority-low" name="priority" value="low">
+                    <div class="icon priority-low">
+                    </div>
+                    <label for="priority-low">Low</label>
+                </div>
+            </fieldset>
             </div>
+            <div class="btn-container">
+                <button>Add task</button>
             </div>
-            <button>Add task</button>
+
           </form>
         </div>
       </div>
+
 
       <h1>All tasks</h1>
       <div class="project1">
