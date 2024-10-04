@@ -18,14 +18,26 @@
   --color-bg-sidebar: #ecfdf5;
   --color-selected-sidebar: #c0f1da;
   --color-font-selected-sidebar: #3d9d70;
+  --color-font-project-sidebar: #6b7280;
+  --color-font-task-due: #49c647;
+  --color-font-task-overdue: #b72f2f;
+  --color-font-add-project-task: #9b9c9f;
   --color-bg-main: #fafaf9;
+  --color-border-task: #6b7280;
   padding: 8px;
+  box-sizing: border-box;
 }
 
 body {
   display: grid;
-  grid-template-columns: minmax(100px, 400px) 1fr;
+  grid-template-columns: 300px 1fr;
   height: 100vh;
   background-color: var(--color-bg-main);
 }
 
+h1 {
+  font-size: 2rem;
+  padding: 16px;
+  height: 64px;
+  margin-top: 32px;
+}

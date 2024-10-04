@@ -1,0 +1,27 @@
+div.modal {
+    border: 1px solid black;
+    border-radius: 8px;
+}
+
+div.item-modal form{
+    display: flex;
+    flex-direction: column;
+}
+
+
+input[type="date"],
+div.time-picker,
+div.project-picker {
+    width: fit-content;
+    height: fit-content;
+    border: 1px solid black;
+    border-radius: 8px;
+}
+
+
+div.props-container {
+    display: flex;
+    justify-content: start;
+    align-items: center;
+    gap: 16px;
+}

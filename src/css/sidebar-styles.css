@@ -2,7 +2,7 @@ div.sidebar {
   background-color: var(--color-bg-sidebar);
 }
 div.sidebar * {
-    font-size: 0.85rem;
+  font-size: 0.85rem;
 }
 
 div.sidebar li,
@@ -13,7 +13,7 @@ div.sidebar ul {
 }
 
 div.sidebar div.profile {
-    margin: 12px 0px 32px 0px;
+  margin: 12px 0px 32px 0px;
 }
 
 div.sidebar div.profile,
@@ -35,7 +35,12 @@ div.sidebar div.profile span {
 
 span.project-view,
 span.add-text {
-    font-weight: bold;
+  font-weight: bold;
+  font-size: 1.1rem;
+}
+
+span.project-view {
+    color: var(--color-font-project-sidebar);
 }
 
 div.profile-image,
@@ -84,36 +89,44 @@ div.project-overview {
   border-radius: 30%;
 }
 
-
-div.sidebar li.selected, 
+div.add-project-task-container:hover,
+div.sidebar li.selected,
 div.sidebar li:hover,
 div.add-project:hover,
 div.add-task:hover {
-    background-color: var(--color-selected-sidebar);
-    color: var(--color-font-selected-sidebar);
-    border-radius: 8px;
-    cursor: pointer;
+  background-color: var(--color-selected-sidebar);
+  color: var(--color-font-selected-sidebar);
+  border-radius: 8px;
+  cursor: pointer;
 }
 
 div.add-task,
 div.add-project {
-    color: var(--color-font-selected-sidebar);
+  color: var(--color-font-selected-sidebar);
 }
 
 div.project-item div.icon,
 div.add-project > div.icon,
 div.add-task > div.icon {
-    background-color: var(--color-font-selected-sidebar);
-    mask-repeat: no-repeat;
-    background-image: none;
+  background-color: var(--color-font-selected-sidebar);
+  mask-repeat: no-repeat;
+  background-image: none;
 }
 
 div.add-project > div.icon,
 div.add-task > div.icon {
-    -webkit-mask-image: url("../../assets/icons/plus-circle.svg");
-    mask-image: url("../../assets/icons/plus-circle.svg");
+  -webkit-mask-image: url("../../assets/icons/plus-circle.svg");
+  mask-image: url("../../assets/icons/plus-circle.svg");
+  width: 40px;
+  height: 40px;
 }
 div.project-item div.icon {
-    -webkit-mask-image: url("../../assets/icons/pound.svg");
-    mask-image: url("../../assets/icons/pound.svg");
+  -webkit-mask-image: url("../../assets/icons/pound.svg");
+  mask-image: url("../../assets/icons/pound.svg");
+}
+
+div.add-task,
+div.add-project {
+    position: relative;
+    left: -10px;
 }

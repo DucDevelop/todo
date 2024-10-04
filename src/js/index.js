@@ -2,6 +2,8 @@
 import { format } from "date-fns";
 import './../css/index-styles.css'
 import './../css/sidebar-styles.css'
+import './../css/todo-container-style.css'
+import './../css/modal-style.css'
 
 const todoItems = [
   {

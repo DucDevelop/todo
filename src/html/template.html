@@ -7,114 +7,174 @@
   </head>
   <body>
     <div class="sidebar">
-        <div class="profile">
-            <div class="profile-image"></div>
-            <span class="user-name">DucDevelop</span>
-        </div>
+      <div class="profile">
+        <div class="profile-image"></div>
+        <span class="user-name">DucDevelop</span>
+      </div>
 
-        <div class="tasks">
-            <div class="add-task">
-                <div class="icon"></div>
-                <span class="add-text">Add task</span>
-            </div>
-            <ul>
-                <li class="selected">      
-                    <div class="task-view">
-                        <div class="icon show-all"></div>
-                        <span class="user-name">All tasks</span>
-                    </div>
-                </li>
-                <li>      
-                    <div class="task-view">
-                        <div class="icon due-today"></div>
-                        <span class="user-name">Due today</span>
-                    </div>
-                </li>
-                <li>      
-                    <div class="task-view">
-                        <div class="icon show-soon"></div>
-                        <span class="user-name">Soon</span>
-                    </div>
-                </li>
-                <li>      
-                    <div class="task-view">
-                        <div class="icon show-finished"></div>
-                        <span class="user-name">Finished</span>
-                    </div>
-                </li>
-                <li>      
-                    <div class="task-view">
-                        <div class="icon show-search"></div>
-                        <span class="user-name">Search</span>
-                    </div>
-                </li>
-            </ul>
+      <div class="tasks">
+        <div class="add-task">
+          <div class="icon"></div>
+          <span class="add-text">Add task</span>
         </div>
-        <div class="projects">
-            <div class="project-view">
-                <div class="icon project-overview"></div>
-                <span class="project-view">My projects</span>
+        <ul>
+          <li class="selected">
+            <div class="task-view">
+              <div class="icon show-all"></div>
+              <span class="user-name">All tasks</span>
             </div>
-            <ul>
-                <li>  
-                    <div class="project-item">
-                        <div class="icon project-item"></div>
-                        <span class="project-name">Project 1</span>
-                    </div>
-                </li>
-                <li>  
-                    <div class="project-item">
-                        <div class="icon project-item"></div>
-                        <span class="project-name">Project 1</span>
-                    </div>
-                </li>
-
-            </ul>
-            <div class="add-project">
-                <div class="icon"></div>
-                <span class="add-text">Add project</span>
+          </li>
+          <li>
+            <div class="task-view">
+              <div class="icon due-today"></div>
+              <span class="user-name">Due today</span>
             </div>
+          </li>
+          <li>
+            <div class="task-view">
+              <div class="icon show-soon"></div>
+              <span class="user-name">Soon</span>
+            </div>
+          </li>
+          <li>
+            <div class="task-view">
+              <div class="icon show-finished"></div>
+              <span class="user-name">Finished</span>
+            </div>
+          </li>
+          <li>
+            <div class="task-view">
+              <div class="icon show-search"></div>
+              <span class="user-name">Search</span>
+            </div>
+          </li>
+        </ul>
+      </div>
+      <div class="projects">
+        <div class="project-view">
+          <div class="icon project-overview"></div>
+          <span class="project-view">Projects</span>
         </div>
+        <ul>
+          <li>
+            <div class="project-item">
+              <div class="icon project-item"></div>
+              <span class="project-name">Project 1</span>
+            </div>
+          </li>
+          <li>
+            <div class="project-item">
+              <div class="icon project-item"></div>
+              <span class="project-name">Project 2</span>
+            </div>
+          </li>
+        </ul>
+        <div class="add-project">
+          <div class="icon"></div>
+          <span class="add-text">Add project</span>
+        </div>
+      </div>
     </div>
     <main>
-        <h1>All tasks</h1>
-        <div class="project1">
-            <h2>Project 1</h2>
-            <div class="task-container">
-                <span class="task-title">Task1</span>
-                <span class="task-due">10:00</span>
-                <div class="task-checkbox"><input type="radio"></div>
-            </div>
-            <div class="task-container">
-                <span class="task-title">Task1</span>
-                <span class="task-due">10:00</span>
-                <div class="task-checkbox"><input type="radio"></div>
-            </div>
-            <div class="task-container">
-                <span class="task-title">Task1</span>
-                <span class="task-due">10:00</span>
-                <div class="task-checkbox"><input type="radio"></div>
-            </div>
-            <div class="add-task"><p>add task</p></div>
-        <div class="project2">
-            <h2>Project 2</h2>
-            <div class="task-container">
-                <span class="task-title">Task1</span>
-                <span class="task-due">10:00</span>
-                <div class="task-checkbox"><input type="radio"></div>
-            </div>
-            <div class="task-container">
-                <span class="task-title">Task1</span>
-                <span class="task-due">10:00</span>
-                <div class="task-checkbox"><input type="radio"></div>
-            </div>
-            <div class="task-container">
-                <span class="task-title">Task1</span>
-                <span class="task-due">10:00</span>
-                <div class="task-checkbox"><input type="radio"></div>
-            </div>
-            <div class="add-task"><p>add task</p></div>
+      <!-- Add project modal -->
+      <div id="add-project" class="modal">
+        <!-- Modal content -->
+        <div class="project-modal">
+          <span class="close">&times;</span>
+          <form>
+              <label for="input-project">Enter project name:</label>
+              <input type="text" id="input-project" minlength="1" required>
+              <button>Add project</button>
+          </form>
         </div>
+      </div>
+
+
+      <!-- add task modal -->
+      <div id="add-task" class="modal">
+        <!-- Modal content -->
+        <div class="item-modal">
+          <span class="close">&times;</span>
+          <form>    
+            <input type="text" id="input-project" minlength="1" required placeholder="Title">
+            <textarea placeholder="Description"></textarea>
+            <div class="props-container">
+                <input type="date" id="start" name="trip-start" value="2018-07-22" min="2018-01-01" max="2018-12-31">
+                <div class="project-picker">
+                    <span># Project</span>
+                </div>
+                <div class="time-picker">
+                    <input type="time" id="appt" name="appt" min="09:00" max="18:00">      
+                </div>
+            </div>
+            <button>Add task</button>
+           </form>
+        </div>
+      </div>
+
+
+
+      <h1>All tasks</h1>
+      <div class="project1">
+        <h2>Project 1</h2>
+        <div class="task-card-container">
+          <div class="task-card">
+            <div class="icon task-checkbox"><input type="checkbox" /></div>
+            <div class="task-info">
+              <span class="task-title">30 minutes Yoga 🧘</span>
+              <span class="task-due overdue">10:00</span>
+            </div>
+          </div>
+          <div class="task-card">
+            <div class="icon task-checkbox"><input type="checkbox" /></div>
+            <div class="task-info">
+              <span class="task-title">Drink Beer 🍺</span>
+              <span class="task-due">12:00</span>
+            </div>
+          </div>
+          <div class="task-card">
+            <div class="icon task-checkbox"><input type="checkbox" /></div>
+            <div class="task-info">
+              <span class="task-title">Fix Computer 💻</span>
+              <span class="task-due">19:00</span>
+            </div>
+          </div>
+        </div>
+        <div class="add-project-task-container">
+          <div class="icon add-project-task"></div>
+          <span>add task</span>
+        </div>
+      </div>
+      <div class="project1">
+        <h2>Project 2</h2>
+        <div class="task-card-container">
+          <div class="task-card">
+            <div class="icon task-checkbox"><input type="checkbox" /></div>
+            <div class="task-info">
+              <span class="task-title">30 minutes Yoga 🧘</span>
+              <span class="task-due">10:00</span>
+            </div>
+          </div>
+          <div class="task-card">
+            <div class="icon task-checkbox"><input type="checkbox" /></div>
+            <div class="task-info">
+              <span class="task-title">Drink Beer 🍺</span>
+              <span class="task-due">12:00</span>
+            </div>
+          </div>
+          <div class="task-card">
+            <div class="icon task-checkbox"><input type="checkbox" /></div>
+            <div class="task-info">
+              <span class="task-title">Fix Computer 💻</span>
+              <span class="task-due">19:00</span>
+            </div>
+          </div>
+        </div>
+        <div class="add-project-task-container">
+          <div class="icon add-project-task"></div>
+          <span>add task</span>
+        </div>
+      </div>
     </main>
   </body>
 </html>
