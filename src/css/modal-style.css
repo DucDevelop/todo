@@ -3,7 +3,7 @@ div.modal {
     border-radius: 8px;
     background-color: var(--color-modal-bg-color);
     background-color: rgb(243, 243, 243);
-    display: block;
+    display: none;
     position: fixed; /* Stay in place */
     top: 100px;
     z-index: 100; /* Sit on top */
