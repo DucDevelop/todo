@@ -6,6 +6,7 @@ import hash from "object-hash";
 function createDOMCreator(document) {
   // e.g. 12 Feb 17:15
   const dueDateFormatStr = "MMM Lo HH:MM a";
+  const DEFAULT_PROJECT = { id: "", title: "No Project"}
 
   function createTaskElement(todo) {
     const taskCard = document.createElement("div");
@@ -72,71 +73,120 @@ function createDOMCreator(document) {
     return taskContainer;
   }
 
-  function createAddProjectTaskBtn() {
-    const addProjectTask = document.createElement("div");
-    addProjectTask.classList.add("add-project-task-container");
-    const addTaskIcon = document.createElement("div");
-    addTaskIcon.classList.add("icon", "add-project-task");
-    const addTaskText = document.createElement("span");
-    addTaskText.textContent = "Add task";
-
-    addProjectTask.appendChild(addTaskIcon);
-    addProjectTask.appendChild(addTaskText);
-
-    return addProjectTask;
-
-  }
-
-  function createProjectTasksContainer(taskList, project) {
-
+  function createProjectTasksContainer(taskList, projectObj) {
     const projectTaskContainer = document.createElement("div");
     const heading = document.createElement("h2");
-    heading.textContent = project ?? "No Project";
+    heading.textContent = DEFAULT_PROJECT.title
+    let projectClass = DEFAULT_PROJECT.id
+    let filteredTasks = []
+
+    if (projectObj && projectObj.id) {
+        heading.textContent = projectObj.title
+        projectClass = projectObj.id
+        filteredTasks = taskList.filter((todo) => todo.project && (todo.project.id === projectObj.id));
+        projectTaskContainer.classList.add(projectClass);
+    }
+    else {
+        filteredTasks = taskList.filter((todo) => todo.project == null);
+    }
+    
+
+    if (filteredTasks.length === 0) {
+      return undefined;
+    }
+
 
     projectTaskContainer.appendChild(heading);
-
-    const projectClass = project ?? "no-project";
-
-    projectTaskContainer.classList.add(hash(projectClass.trim()));
-
-    let filteredTasks = [];
-
-    if (project) {
-        filteredTasks =  taskList.filter((todo) => todo.project === project)
-    } else {
-        filteredTasks = taskList.filter((todo) => todo.project == null)
-    }
-    if (filteredTasks.length === 0) {
-        return undefined;
-    }
-
-    projectTaskContainer.appendChild(createTasksContainer(filteredTasks))
-    projectTaskContainer.appendChild(createAddProjectTaskBtn());
+    projectTaskContainer.appendChild(createTasksContainer(filteredTasks));
+    projectTaskContainer.appendChild(createAddProjectTaskBtn(projectClass));
 
     return projectTaskContainer;
   }
 
-  function createSidebarProjectList(projects) {
-    const projectsContainer = document.createElement("nav");
-    const projectList = document.createElement("ul");
-    projectsContainer.appendChild(projectList);
+  function createIconBtn(
+    containerClasses,
+    iconClasses,
+    textClasses,
+    textContent,
+  ) {
+    const container = document.createElement("div");
+    container.classList.add(...containerClasses);
 
-    projects.forEach((project) => {
+    const addTaskIcon = document.createElement("div");
+    addTaskIcon.classList.add(...iconClasses);
+
+    const addTaskText = document.createElement("span");
+    addTaskText.classList.add(...textClasses);
+    addTaskText.textContent = textContent;
+
+    container.appendChild(addTaskIcon);
+    container.appendChild(addTaskText);
+    return container;
+  }
+
+  function createAddTaskSideBarBtn() {
+    const container = createIconBtn(
+      ["add-task"],
+      ["icon"],
+      ["add-text"],
+      "Add task",
+    );
+
+    return container;
+  }
+  function createAddProjectSideBarBtn() {
+    const container = createIconBtn(
+      ["add-project"],
+      ["icon"],
+      [],
+      "Add project",
+    );
+
+    return container;
+  }
+
+  function createAddProjectTaskBtn(projectId="") {
+    const container = createIconBtn(
+      ["add-project-task-container"],
+      ["icon", "add-project-task"],
+      [],
+      "Add task",
+    );
+    container.setAttribute("data-project-id", projectId)
+
+    return container;
+  }
+
+  function createSidebarProjectList(projects) {
+
+    function createProjectListItem(title = DEFAULT_PROJECT.title, projectId = DEFAULT_PROJECT.id) {
       const li = document.createElement("li");
       const projectItem = document.createElement("div");
       projectItem.classList.add("project-item");
+      projectItem.setAttribute("data-project-id", projectId);
 
       const icon = document.createElement("div");
       icon.classList.add("project-item", "icon");
 
       const text = document.createElement("span");
       text.classList.add("project-name");
-      text.textContent = project;
+      text.textContent = title;
 
       projectItem.appendChild(icon);
       projectItem.appendChild(text);
       li.appendChild(projectItem);
-      projectList.appendChild(li);
+      return li;
+    }
+
+    const projectsContainer = document.createElement("nav");
+    const projectList = document.createElement("ul");
+    projectsContainer.appendChild(projectList);
+
+    // default project if task has no project assigned
+    projectList.appendChild(createProjectListItem());
+
+    projects.forEach((project) => {
+      projectList.appendChild(createProjectListItem(project.title, project.id));
     });
 
     return projectList;
@@ -168,30 +218,101 @@ function createDOMCreator(document) {
     return contentContainer;
   }
 
-  function generateProjectView(
-    tasklist,
-    project=null
-  ) {
-
+  function generateProjectView(tasklist, projectObj = DEFAULT_PROJECT) {
     const contentContainer = document.createElement("div");
     contentContainer.setAttribute("id", "contents");
     const heading = document.createElement("h1");
-    heading.textContent = project?? "No Project";
-    contentContainer.appendChild(heading);
-    const filteredList = tasklist.filter((todo) => todo.project === project)
-    if (filteredList.length !== 0) {
-        contentContainer.appendChild(createTasksContainer(filteredList));
+    let filteredList = []
+
+    if(projectObj.id) {
+        heading.textContent = projectObj.title;
+        filteredList = tasklist.filter((todo) => todo.project === projectObj.title);
     }
-    contentContainer.appendChild(createAddProjectTaskBtn())
+    else {
+        heading.textContent = DEFAULT_PROJECT.title;
+        filteredList = tasklist.filter((todo) => todo.project == null);
+    }
+    contentContainer.appendChild(heading);
+    
+    if (filteredList.length !== 0) {
+      contentContainer.appendChild(createTasksContainer(filteredList));
+    }
+    contentContainer.appendChild(createAddProjectTaskBtn(projectObj.id));
     return contentContainer;
   }
 
+  function createProjectSidebarView(projects) {
+    const projectViewContainer = document.createElement("div");
+    projectViewContainer.classList.add("projects");
+    projectViewContainer.appendChild(
+      createIconBtn(
+        ["project-view"],
+        ["project-overview", "icon"],
+        ["project-view"],
+        "Projects",
+      ),
+    );
+    projectViewContainer.appendChild(createSidebarProjectList(projects));
+    projectViewContainer.appendChild(
+      createIconBtn(["add-project"], ["icon"], ["add-text"], "Add Project"),
+    );
+    return projectViewContainer;
+  }
+
+  function createTaskSidebarView() {
+    const taskViews = [
+      { iconClass: "show-all", textContent: "All tasks" },
+      { iconClass: "due-today", textContent: "Due today" },
+      { iconClass: "show-soon", textContent: "Soon" },
+      { iconClass: "show-finished", textContent: "Finished" },
+      { iconClass: "show-search", textContent: "Search" },
+    ];
+
+    const taskViewContainer = document.createElement("div");
+    taskViewContainer.classList.add("tasks");
+    taskViewContainer.appendChild(
+      createIconBtn(["add-task"], ["icon"], ["add-text"], "Add task"),
+    );
+
+    const navContainer = document.createElement("nav");
+    taskViewContainer.appendChild(navContainer);
+    const listContainer = document.createElement("ul");
+    navContainer.appendChild(listContainer);
+
+    taskViews.forEach((view) => {
+      const listItem = document.createElement("li");
+
+      listItem.appendChild(
+        createIconBtn(
+          ["task-view"],
+          ["icon", view.iconClass],
+          ["user-name"],
+          view.textContent,
+        ),
+      );
+      listContainer.appendChild(listItem);
+    });
+
+    return taskViewContainer;
+  }
+
+  function generateSideBar(userName, projects) {
+    const sideBar = document.createElement("div");
+    sideBar.classList.add("sidebar");
+
+    sideBar.appendChild(
+      createIconBtn(["profile"], ["profile-image"], ["user-name"], userName),
+    );
+    sideBar.appendChild(createTaskSidebarView());
+    sideBar.appendChild(createProjectSidebarView(projects));
+    return sideBar;
+  }
+
   return {
-    // TODO: create sidebar completely
     // TODO: create main content
-    // createSidebarProjectList,
     generateTaskView,
     generateProjectView,
+    generateSideBar,
   };
 }
 

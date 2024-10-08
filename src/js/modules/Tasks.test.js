@@ -90,33 +90,7 @@ describe("Test task creation", () => {
     expect(task.getTaskList()).toEqual([]);
   });
 
-  test("get all projects", () => {
-    const projects = ["Pj0", "Pj1"]
-    task.addTask(taskObj);
-
-    task.addTask(task.createTask(
-      title,
-      description,
-      dueDate,
-      isDone,
-      projects[1],
-      priority,
-    ));
-    task.addTask(task.createTask(
-      title,
-      description,
-      dueDate,
-      isDone,
-      projects[0],
-      priority,
-    ));
-
-    expect(task.getProjectList()).toContain(projects[0]);
-    expect(task.getProjectList()).toContain(projects[1]);
-  });
-
   test("Populate with array of objects", () => {
-    
     const todoItems = [
       {
         title: "Task0",
@@ -131,7 +105,7 @@ describe("Test task creation", () => {
         description: "To do Task one in order to balbal",
         dueDate: new Date(),
         isDone: false,
-        project: "Project 1",
+        project: null,
         priority: 0,
       },
       {
@@ -139,7 +113,10 @@ describe("Test task creation", () => {
         description: "To do Task one in order to balbal",
         dueDate: new Date(),
         isDone: false,
-        project: "Project 1",
+        project: {
+          id: "115d65d935084549482eb745d10151e7040aeefa",
+          title: "Hello 3",
+        },
         priority: 2,
       },
       {
@@ -147,18 +124,19 @@ describe("Test task creation", () => {
         description: "To do Task one in order to balbal",
         dueDate: new Date(),
         isDone: false,
-        project: "Project 2",
+        project: {
+          id: "115d65d935084549482eb745d10151e7040aeefa",
+          title: "Hello 3",
+        },
         priority: 1,
-      }
+      },
     ];
 
     const todos = createTask(todoItems);
 
-    todos.getTaskList().forEach(todo => {
-      const {id, ...rest} = todo;
+    todos.getTaskList().forEach((todo) => {
+      const { id, ...rest } = todo;
       expect(todoItems).toContainEqual(rest);
-    })
-
+    });
   });
-
 });

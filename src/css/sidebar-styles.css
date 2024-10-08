@@ -7,8 +7,8 @@ div.sidebar * {
   font-size: 0.85rem;
 }
 
-div.sidebar  nav {
-    padding: 0;
+div.sidebar nav {
+  padding: 0;
 }
 
 div.sidebar li,
@@ -46,7 +46,7 @@ span.add-text {
 }
 
 span.project-view {
-    color: var(--color-font-project-sidebar);
+  color: var(--color-font-project-sidebar);
 }
 
 div.profile-image,
@@ -95,6 +95,7 @@ div.project-overview {
   border-radius: 30%;
 }
 
+div.project-view:hover,
 div.add-project-task-container:hover,
 div.sidebar li.selected,
 div.sidebar li:hover,
@@ -104,6 +105,11 @@ div.add-task:hover {
   color: var(--color-font-selected-sidebar);
   border-radius: 8px;
   cursor: pointer;
+}
+
+div.profile-image:hover {
+  cursor: pointer;
+  filter: opacity(0.6);
 }
 
 div.add-task,
@@ -133,6 +139,6 @@ div.project-item div.icon {
 
 div.add-task,
 div.add-project {
-    position: relative;
-    left: -10px;
+  position: relative;
+  left: -10px;
 }

@@ -23,6 +23,10 @@ function createTasks(list = null) {
   ) {
     const id = hash({ title, description, dueDate, isDone, project, priority });
 
+    if (typeof project !== 'object') {
+      throw new Error("Project must be of type object")
+    }
+
     return {
       id,
       title,
@@ -89,7 +93,6 @@ function createTasks(list = null) {
     setTaskProp,
     getTask,
     addTask,
-    getProjectList,
     getTaskList,
     createTask,
     clearTaskList,
