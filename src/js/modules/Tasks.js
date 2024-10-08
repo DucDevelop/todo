@@ -43,7 +43,18 @@ function createTasks(list = null) {
   }
 
   function populateTasks(todoList) {
-    todoList.forEach((todo) => addTask(createTask(...Object.values(todo))));
+    todoList.forEach((todo) => {
+      addTask(
+        createTask(
+          todo.title,
+          todo.description,
+          todo.dueDate,
+          todo.isDone,
+          todo.project,
+          todo.priority,
+        ),
+      );
+    });
   }
 
   function setTaskProp(id, prop, newVal) {
@@ -64,19 +75,12 @@ function createTasks(list = null) {
     return projects;
   }
 
-  function getTasksDueUntil(date) {
-    return taskList.filter((task) => compareAsc(date, task.dueDate) > 0);
-  }
-
   function getTaskList() {
     return taskList;
   }
 
-  function isTaskOverdue(taskId) {
-    // Compare the two dates and return 1 if the first date is after the second,
-    //  -1 if the first date is before the second or 0 if dates are equal.
-    const overdueVal = 1;
-    return compareAsc(new Date(), getTask(taskId).dueDate) === overdueVal;
+  function clearTaskList() {
+    taskList.splice(0, taskList.length);
   }
 
   return {
@@ -86,9 +90,9 @@ function createTasks(list = null) {
     getTask,
     addTask,
     getProjectList,
-    isTaskOverdue,
-    getTasksDueUntil,
     getTaskList,
+    createTask,
+    clearTaskList,
   };
 }
 

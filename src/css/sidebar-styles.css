@@ -7,6 +7,10 @@ div.sidebar * {
   font-size: 0.85rem;
 }
 
+div.sidebar  nav {
+    padding: 0;
+}
+
 div.sidebar li,
 div.sidebar ul {
   list-style: none;
