@@ -16,11 +16,25 @@ function createStorageProcessor() {
   function deleteTasks() {
     localStorage.removeItem("tasks");
   }
+  function storeProjects(objList) {
+    localStorage.setItem("projects", JSON.stringify(objList));
+  }
+
+  function loadProjects() {
+    return JSON.parse(localStorage.getItem("projects"));
+  }
+
+  function deleteProjects() {
+    localStorage.removeItem("projects");
+  }
 
   return {
     storeTasks,
     loadTasks,
     deleteTasks,
+    storeProjects,
+    loadProjects,
+    deleteProjects,
   };
 }
 

@@ -1,3 +1,4 @@
+import { ids } from "webpack";
 import createProjectManager from "./ProjectManager";
 import hash from "object-hash";
 
@@ -30,6 +31,39 @@ describe("Project creation", () => {
     const project = projectManager.getProject(hash(title));
     expect(project.title).toBe(title);
   });
+  test("Valid project ID", () => {
+    const title = "Test";
+    projectManager.addProject(title);
+    expect(projectManager.isProjectIdValid(hash(title))).toBe(true);
+    expect(projectManager.isProjectIdValid(title)).toBe(false);
+  });
+
+  test("Search by title project ID", () => {
+    const title = "Test";
+    projectManager.addProject(title);
+
+    expect(projectManager.getProjectByTitle(title)).toEqual(
+      projectManager.getProject(hash(title)),
+    );
+  });
+
+  test("Search by title project ID", () => {
+    const title = "Test";
+    projectManager.addProject(title);
+
+    const invalidProject = {
+      title: "Hello",
+      ids: "Hello",
+    };
+    const validProject = {
+      title: title,
+      id: hash(title),
+    };
+
+    expect(projectManager.validateProject(invalidProject)).toBe(false);
+    expect(projectManager.validateProject(validProject)).toBe(true);
+  });
+
   test("Edit project title", () => {
     const title = "Test";
     const titleNew = "Test2";
@@ -93,7 +127,7 @@ describe("Project creation", () => {
       id: hash(projects[1].title),
       title: projects[1].title,
     });
-    
+
     expect(projectList).toContainEqual({
       id: hash(projects[2].title),
       title: projects[2].title,

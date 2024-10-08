@@ -37,13 +37,31 @@ function createProjectManager() {
     const allIds = getProjectIds();
 
     list.forEach((project) => {
-      if (!allIds.includes(hash(project.title) && !allIds.includes(project.id))) {
+      if (
+        !allIds.includes(hash(project.title) && !allIds.includes(project.id))
+      ) {
         addProject(project.title);
       }
     });
   }
   function clearAllProjects() {
     projectList.splice(0, projectList.length);
+  }
+
+  function isProjectIdValid(id) {
+    return getProjectIds().includes(id);
+  }
+
+  function getProjectByTitle(title) {
+    return getProjectList().filter((project) => project.title === title)[0];
+  }
+
+  function validateProject(projectObj) {
+    if (isProjectIdValid(projectObj.id)) {
+      const storedProject = getProject(projectObj.id);
+      return projectObj.title === storedProject.title;
+    }
+    return false;
   }
 
   return {
@@ -55,6 +73,9 @@ function createProjectManager() {
     getProjectList,
     loadProjects,
     clearAllProjects,
+    getProjectByTitle,
+    validateProject,
+    isProjectIdValid,
   };
 }
 
