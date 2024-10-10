@@ -1,10 +1,240 @@
+import { compareAsc } from "date-fns";
+
 function createController(
   taskManager,
   projectManager,
   DOMCreator,
   storageManager,
 ) {
-  const CONFIG_VIEW = [];
+  pullFromDb();
+
+  const CONFIG_TASK_VIEW = [
+    {
+      id: "0",
+      title: "All tasks",
+      description: "Display all tasks",
+      type: "task",
+      cssClassList: ["show-all"],
+      taskFilter(task) {
+        return Boolean(task);
+      },
+      eventHandlers: [
+        {
+          event: "click",
+          callback() {
+            renderView(this, CONFIG_TASK_EVENTS);
+          },
+          useCapute: false,
+        },
+      ],
+    },
+    {
+      id: "1",
+      title: "Due today",
+      description: "Display tasks that are due today",
+      type: "task",
+      cssClassList: ["due-today"],
+      taskFilter(task) {
+        return compareAsc(new Date(), task.dueDate) >= 0;
+      },
+      eventHandlers: [
+        {
+          event: "click",
+          callback() {
+            renderView(this, CONFIG_TASK_EVENTS);
+          },
+          useCapute: false,
+        },
+      ],
+    },
+    {
+      id: "2",
+      title: "Soon",
+      description: "Display tasks that are due later than today",
+      type: "task",
+      cssClassList: ["show-soon"],
+      taskFilter(task) {
+        return compareAsc(new Date(), task.dueDate) === -1;
+      },
+      eventHandlers: [
+        {
+          event: "click",
+          callback() {
+            renderView(this, CONFIG_TASK_EVENTS);
+          },
+          useCapute: false,
+        },
+      ],
+    },
+    {
+      id: "3",
+      title: "Finished",
+      description: "Display finished tasks",
+      type: "task",
+      cssClassList: ["show-finished"],
+      taskFilter(task) {
+        return task.isDone;
+      },
+      eventHandlers: [
+        {
+          event: "click",
+          callback() {
+            renderView(this, CONFIG_TASK_EVENTS);
+          },
+          useCapute: false,
+        },
+      ],
+    },
+    {
+      id: "4",
+      title: "Search",
+      description: "Display tasks that match search term",
+      type: "task",
+      cssClassList: ["show-search"],
+      taskFilter(task, search) {
+        // FIXME: figure out how to filter
+        return true;
+      },
+      eventHandlers: [
+        {
+          event: "click",
+          callback() {
+            renderView(this, CONFIG_TASK_EVENTS);
+          },
+          useCapute: false,
+        },
+      ],
+    },
+  ];
+
+  const CONFIG_PROJECT_VIEW = {
+    projects: projectManager.getProjectList(),
+
+    eventHandlers: [
+      {
+        event: "click",
+        callback() {
+          renderView(this, CONFIG_TASK_EVENTS);
+        },
+        useCapute: false,
+      },
+    ],
+  };
+
+  const CONFIG_SIDEBAR_EVENTS = {
+    addTask: [
+        {
+            event: "click",
+            callback() {
+              showModal();
+            },
+            useCapture: false,
+        },
+      ],
+    addProject: [
+        {
+            event: "click",
+            callback() {
+              showModal(false);
+            },
+            useCapture: false,
+        },
+    ],
+    viewProjects: [
+        {
+            event: "click",
+            callback() {
+              console.log("TODO: SHow modal with project list")
+            },
+            useCapture: false,
+        },
+    ],
+    viewProfile: [
+        {
+            event: "click",
+            callback() {
+              console.log("TODO: Profile action")
+            },
+            useCapture: false,
+        },
+    ],
+  }
+  const CONFIG_TASK_EVENTS = {
+    taskEdit: [
+      {
+        event: "click",
+        callback() {
+          populateTaskModal(
+            taskManager.getTask(this.parentNode.getAttribute("data-id")),
+          );
+          document.querySelector(
+            "form#form-add-task div.btn-container > button",
+          ).textContent = "Save";
+          showModal();
+        },
+        useCapture: false,
+      },
+    ],
+    taskDelete: [
+      {
+        event: "click",
+        callback() {
+          console.log(
+            `Called delete icon on Task: ${taskManager.getTask(this.parentNode.getAttribute("data-id")).title} [ID]: ${this.parentNode.getAttribute("data-id")} `,
+          );
+        },
+        useCapture: false,
+      },
+    ],
+    taskView: [
+      {
+        event: "click",
+        callback() {
+          console.log(
+            `Called view icon on Task: ${taskManager.getTask(this.parentNode.getAttribute("data-id")).title} [ID]: ${this.parentNode.getAttribute("data-id")} `,
+          );
+        },
+        useCapture: false,
+      },
+    ],
+    taskCheck: [
+      {
+          event: "click",
+          callback() {
+            const taskId = this.getAttribute("data-id");
+            taskManager.setTaskProp(
+              taskId,
+              "isDone",
+              !taskManager.getTask(taskId).isDone,
+            );
+            this.parentNode.parentNode.classList.toggle("completed");
+            //   TODO: rerender after X seconds
+          },
+          useCapture: false,
+      },
+    ],
+    projectTaskAdd: [
+      {
+        event: "click",
+        callback(e) {
+          const radioBtn = document.querySelector(
+            `fieldset#project-selection input[type="radio"][value="${e.currentTarget.getAttribute("data-project-id")}"]`,
+          );
+          radioBtn.checked = true;
+          e.stopPropagation();
+          showModal();
+        },
+        useCapture: true,
+      },
+    ],
+  };
+
+
+  const CONFIG_MODAL_EVENTS_ADD_TASK = {}
+  const CONFIG_MODAL_EVENTS_ADD_PROJECT = {}
+  const CONFIG_MODAL_EVENTS_EDIT_PROJECT = {}
+  const CONFIG_MODAL_EVENTS_VIEW_PROJECTS= {}
+  const CONFIG_MODAL_EVENTS_COMMON= {}
 
   const showModal = (showTask = true) => {
     const modal = showTask
@@ -19,13 +249,6 @@ function createController(
     const style = isVisible ? "block" : "none";
     modal.setAttribute("style", `display:${style}`);
   }
-
-  // FIXME: rerender / update model on data change in project or task database
-  // configure views with filters and highlight correct sidebar
-  const views = {
-    task: {},
-    project: projectManager.getProjectList(),
-  };
 
   function pushToDb() {
     storageManager.storeProjects(projectManager.getProjectList());
@@ -47,21 +270,25 @@ function createController(
     };
   }
 
-  function rerenderProjectList(newList) {
-    const container = document.querySelector("div.project-view + nav");
-    const oldContent = document.querySelector("div.project-view + nav > ul");
-    container.removeChild(oldContent);
-    container.appendChild(newList);
-  }
-
   function renderSideBar() {
     const body = document.querySelector("body");
     const sidebar = document.querySelector("div.sidebar");
     const newSidebar = DOMCreator.generateSideBar(
       "DucDevelop",
-      projectManager.getProjectList(),
+      CONFIG_TASK_VIEW,
+      CONFIG_PROJECT_VIEW,
+      CONFIG_SIDEBAR_EVENTS
     );
     body.replaceChild(newSidebar, sidebar);
+  }
+
+  function renderSidebarProjectList() {
+    const projectsList = document.querySelector("div.projects");
+
+    projectsList.parentNode.replaceChild(
+      DOMCreator.createProjectSidebarView(projectManager.getProjectList()),
+      projectsList,
+    );
   }
 
   function addProject(title) {
@@ -119,7 +346,7 @@ function createController(
     hideModal();
 
     pushToDb();
-    renderSideBar();
+    renderSidebarProjectList();
     renderTaskModal();
     // TODO: reattach event listeners
   }
@@ -161,31 +388,40 @@ function createController(
     modal.setAttribute("style", `display:${style}`);
   }
 
-  function renderView() {
-    const options = {
-      filter(x) {
-        return Boolean(x);
-      },
-      title: "All tasks",
-    };
-    const options1 = {
-      filter(x) {
-        return x.isDone;
-      },
-      title: "Finished",
-    };
-    const options2 = {
-      filter(x) {
-        return Boolean(x);
-      },
-      title: "All tasks",
-    };
+  function renderView(option, CONFIG_TASK_EVENTS) {
+    let view = null;
+    let viewSelection = null;
 
-    const view = DOMCreator.generateTaskView(
-      taskManager.getTaskList(),
-      projectManager.getProjectList(),
-      options,
+    const views = Array.from(
+      document.querySelectorAll("div.sidebar nav ul > li"),
     );
+    views.forEach((sidebarView) => sidebarView.classList.remove("selected"));
+
+    if (option && option.type === "task") {
+      view = DOMCreator.generateTaskView(
+        taskManager.getTaskList(),
+        projectManager.getProjectList(),
+        option,
+        CONFIG_TASK_EVENTS,
+      );
+
+      viewSelection = `div.sidebar nav ul > li[data-task-view-id="${option.id}"]`;
+    } else if (option) {
+      // project view
+      view = DOMCreator.generateProjectView(
+        taskManager.getTaskList(),
+        projectManager.getProject(option.id),
+        CONFIG_TASK_EVENTS,
+      );
+      viewSelection = `div.sidebar nav ul > li[data-project-view-id="${option.id}"]`;
+    } else {
+      // "no project" view
+      view = DOMCreator.generateProjectView(taskManager.getTaskList(), null, CONFIG_TASK_EVENTS);
+      viewSelection = `div.sidebar nav ul > li[data-project-view-id=""]`;
+    }
+
+    // mark selected
+    document.querySelector(viewSelection).classList.add("selected");
 
     const newContent = document.createElement("div");
     newContent.setAttribute("id", "content");
@@ -213,9 +449,11 @@ function createController(
     // render page
     renderTaskModal();
     renderSideBar();
-    renderView();
+
+    // TODO: make it general
+    renderView(CONFIG_TASK_VIEW[0], CONFIG_TASK_EVENTS);
     // attach event listeners
-    setupEvents();
+    // setupEvents();
   }
 
   function populateTaskModal(taskObj) {
@@ -242,25 +480,8 @@ function createController(
   }
 
   function setupEvents() {
+    // TODO: Split up and move to DOM creator
     const CONFIG_EVENT = [
-      {
-        // add task button in sidebar
-        elements: [document.querySelector("div.add-task")],
-        event: "click",
-        callback() {
-          showModal();
-        },
-        useCapture: false,
-      },
-      {
-        // add project button in sidebar
-        elements: [document.querySelector("div.add-project")],
-        event: "click",
-        callback() {
-          showModal(false);
-        },
-        useCapture: false,
-      },
       {
         // cancel button in modal cancelAdd
         elements: Array.from(document.querySelectorAll("div.icon.close")),
@@ -270,88 +491,7 @@ function createController(
         },
         useCapture: false,
       },
-      {
-        // TODO: delete button for individual tasks
-        elements: Array.from(
-          document.querySelectorAll("div.task-action div.icon.delete"),
-        ),
-        event: "click",
-        callback() {
-          console.log(
-            `Called delete icon on Task: ${taskManager.getTask(this.parentNode.getAttribute("data-id")).title} [ID]: ${this.parentNode.getAttribute("data-id")} `,
-          );
-        },
-        useCapture: false,
-      },
-
-      {
-        // edit button for individual tasks
-        // FIXME: edit existing task instead of adding new one
-        elements: Array.from(
-          document.querySelectorAll("div.task-action div.icon.edit"),
-        ),
-        event: "click",
-        callback() {
-          populateTaskModal(
-            taskManager.getTask(this.parentNode.getAttribute("data-id")),
-          );
-          document.querySelector(
-            "form#form-add-task div.btn-container > button",
-          ).textContent = "Save";
-          showModal();
-        },
-        useCapture: false,
-      },
-
-      {
-        // TODO: Display detail page for individual task
-        elements: Array.from(
-          document.querySelectorAll("div.task-action div.icon.view"),
-        ),
-        event: "click",
-        callback() {
-          console.log(
-            `Called view icon on Task: ${taskManager.getTask(this.parentNode.getAttribute("data-id")).title} [ID]: ${this.parentNode.getAttribute("data-id")} `,
-          );
-        },
-        useCapture: false,
-      },
-
-      {
-        // TODO: Display detail page for individual task
-        elements: Array.from(
-          document.querySelectorAll('div.task-card input[type="checkbox"]'),
-        ),
-        event: "click",
-        callback() {
-          const taskId = this.getAttribute("data-id");
-          taskManager.setTaskProp(
-            taskId,
-            "isDone",
-            !taskManager.getTask(taskId).isDone,
-          );
-          this.parentNode.parentNode.classList.toggle("completed");
-          //   TODO: rerender after X seconds
-        },
-        useCapture: false,
-      },
-
-      {
-        // add task in project section
-        elements: Array.from(
-          document.querySelectorAll("div.add-project-task-container"),
-        ),
-        event: "click",
-        callback(e) {
-          const radioBtn = document.querySelector(
-            `fieldset#project-selection input[type="radio"][value="${e.currentTarget.getAttribute("data-project-id")}"]`,
-          );
-          radioBtn.checked = true;
-          e.stopPropagation();
-          showModal();
-        },
-        useCapture: true,
-      },
+      
       {
         // submit add task
         elements: [document.getElementById("form-add-task")],
@@ -382,6 +522,11 @@ function createController(
       });
     });
   }
+
+
+
+
+
 
   return {
     addProject,

@@ -6,9 +6,9 @@ import hash from "object-hash";
 function createDOMCreator(document) {
   // e.g. 12 Feb 17:15
   const dueDateFormatStr = "EEE, do MMM hb";
-  const DEFAULT_PROJECT = { id: "", title: "No Project" };
+  const DEFAULT_PROJECT = { id: "", title: "No Project", obj: null };
 
-  function createTaskElement(todo) {
+  function createTaskElement(todo, CONFIG_TASK_EVENTS) {
     const taskCard = document.createElement("div");
     taskCard.classList.add("task-card");
     taskCard.setAttribute("data-id", todo.id);
@@ -23,6 +23,7 @@ function createDOMCreator(document) {
     input.setAttribute("type", "checkbox");
     input.setAttribute("data-id", todo.id);
     checkBox.appendChild(input);
+    attachEventHandlers(input, CONFIG_TASK_EVENTS.taskCheck, input);
 
     const taskOverview = document.createElement("div");
     taskOverview.classList.add("task-short-info");
@@ -47,10 +48,13 @@ function createDOMCreator(document) {
     taskAction.setAttribute("data-id", todo.id);
     const viewTask = document.createElement("div");
     viewTask.classList.add("icon", "view");
+    attachEventHandlers(viewTask, CONFIG_TASK_EVENTS.taskView, viewTask);
     const editTask = document.createElement("div");
     editTask.classList.add("icon", "edit");
+    attachEventHandlers(editTask, CONFIG_TASK_EVENTS.taskEdit, editTask);
     const deleteTask = document.createElement("div");
     deleteTask.classList.add("icon", "delete");
+    attachEventHandlers(deleteTask, CONFIG_TASK_EVENTS.taskDelete, deleteTask);
 
     taskAction.appendChild(viewTask);
     taskAction.appendChild(editTask);
@@ -65,32 +69,38 @@ function createDOMCreator(document) {
     return taskCard;
   }
 
-  function createTasksContainer(taskList) {
+  function createTasksContainer(taskList, CONFIG_TASK_EVENTS) {
     const taskContainer = document.createElement("div");
     taskContainer.classList.add("task-card-container");
     taskList.forEach((task) =>
-      taskContainer.appendChild(createTaskElement(task)),
+      taskContainer.appendChild(createTaskElement(task, CONFIG_TASK_EVENTS)),
     );
 
     return taskContainer;
   }
 
-  function createProjectTasksContainer(taskList, projectObj) {
+  function createProjectTasksContainer(
+    taskList,
+    projectObj,
+    CONFIG_TASK_EVENTS,
+  ) {
     const projectTaskContainer = document.createElement("div");
     const heading = document.createElement("h2");
-    heading.textContent = DEFAULT_PROJECT.title;
-    let projectClass = DEFAULT_PROJECT.id;
+    const safeProject = createSafeProjectObj(projectObj);
+
+    heading.textContent = safeProject.title;
+    const projectClass = safeProject.id;
     let filteredTasks = [];
 
-    if (projectObj && projectObj.id) {
-      heading.textContent = projectObj.title;
-      projectClass = projectObj.id;
+    if (safeProject.obj) {
       filteredTasks = taskList.filter(
-        (todo) => todo.project && todo.project.id === projectObj.id,
+        (todo) => todo.project && todo.project.id === safeProject.id,
       );
       projectTaskContainer.classList.add(projectClass);
     } else {
-      filteredTasks = taskList.filter((todo) => todo.project == null);
+      filteredTasks = taskList.filter(
+        (todo) => todo.project === safeProject.obj,
+      );
     }
 
     if (filteredTasks.length === 0) {
@@ -98,8 +108,15 @@ function createDOMCreator(document) {
     }
 
     projectTaskContainer.appendChild(heading);
-    projectTaskContainer.appendChild(createTasksContainer(filteredTasks));
-    projectTaskContainer.appendChild(createAddProjectTaskBtn(projectClass));
+    projectTaskContainer.appendChild(
+      createTasksContainer(filteredTasks, CONFIG_TASK_EVENTS),
+    );
+    projectTaskContainer.appendChild(
+      createAddProjectTaskBtn(
+        safeProject.id,
+        CONFIG_TASK_EVENTS.projectTaskAdd,
+      ),
+    );
 
     return projectTaskContainer;
   }
@@ -146,7 +163,15 @@ function createDOMCreator(document) {
     return container;
   }
 
-  function createAddProjectTaskBtn(projectId = "") {
+  function createSafeProjectObj(project) {
+    if (!project) {
+      return DEFAULT_PROJECT;
+    }
+
+    return { obj: project, ...project };
+  }
+
+  function createAddProjectTaskBtn(projectId = "", eventHandlers = []) {
     const container = createIconBtn(
       ["add-project-task-container"],
       ["icon", "add-project-task"],
@@ -154,26 +179,28 @@ function createDOMCreator(document) {
       "Add task",
     );
     container.setAttribute("data-project-id", projectId);
+    attachEventHandlers(container, eventHandlers);
 
     return container;
   }
 
-  function createSidebarProjectList(projects) {
-    function createProjectListItem(
-      title = DEFAULT_PROJECT.title,
-      projectId = DEFAULT_PROJECT.id,
-    ) {
+  function createSidebarProjectList(projectConfig) {
+    function createProjectListItem(project) {
+      const safeProject = createSafeProjectObj(project);
       const li = document.createElement("li");
       const projectItem = document.createElement("div");
       projectItem.classList.add("project-item");
-      projectItem.setAttribute("data-project-id", projectId);
+
+      li.setAttribute("data-project-view-id", safeProject.id);
+
+      attachEventHandlers(li, projectConfig.eventHandlers, safeProject.obj);
 
       const icon = document.createElement("div");
       icon.classList.add("project-item", "icon");
 
       const text = document.createElement("span");
       text.classList.add("project-name");
-      text.textContent = title;
+      text.textContent = safeProject.title;
 
       projectItem.appendChild(icon);
       projectItem.appendChild(text);
@@ -186,10 +213,10 @@ function createDOMCreator(document) {
     projectsContainer.appendChild(projectList);
 
     // default project if task has no project assigned
-    projectList.appendChild(createProjectListItem());
+    projectList.appendChild(createProjectListItem(null));
 
-    projects.forEach((project) => {
-      projectList.appendChild(createProjectListItem(project.title, project.id));
+    projectConfig.projects.forEach((prj) => {
+      projectList.appendChild(createProjectListItem(prj));
     });
 
     return projectList;
@@ -198,7 +225,8 @@ function createDOMCreator(document) {
   function generateTaskView(
     tasklist,
     projectList,
-    { filter = Boolean, title = "All tasks" } = {},
+    { taskFilter = Boolean, title = "All tasks" } = {},
+    CONFIG_TASK_EVENTS,
   ) {
     const contentContainer = document.createElement("div");
     contentContainer.setAttribute("id", "content");
@@ -210,8 +238,9 @@ function createDOMCreator(document) {
 
     nullIncludedList.forEach((project) => {
       const projectTasks = createProjectTasksContainer(
-        tasklist.filter(filter),
+        tasklist.filter(taskFilter),
         project,
+        CONFIG_TASK_EVENTS,
       );
       if (projectTasks) {
         contentContainer.appendChild(projectTasks);
@@ -221,111 +250,141 @@ function createDOMCreator(document) {
     return contentContainer;
   }
 
-  function generateProjectView(tasklist, projectObj = DEFAULT_PROJECT) {
+  function generateProjectView(
+    tasklist,
+    projectObj = null,
+    CONFIG_TASK_EVENTS,
+  ) {
     const contentContainer = document.createElement("div");
     contentContainer.setAttribute("id", "contents");
     const heading = document.createElement("h1");
     let filteredList = [];
+    let projectId = "";
 
-    if (projectObj.id) {
-      heading.textContent = projectObj.title;
-      filteredList = tasklist.filter(
-        (todo) => todo.project === projectObj.title,
-      );
-    } else {
+    if (!projectObj) {
       heading.textContent = DEFAULT_PROJECT.title;
       filteredList = tasklist.filter((todo) => todo.project == null);
+    } else {
+      heading.textContent = projectObj.title;
+      filteredList = tasklist.filter(
+        (todo) => todo.project && todo.project.id === projectObj.id,
+      );
+      projectId = projectObj.id;
     }
+
     contentContainer.appendChild(heading);
 
     if (filteredList.length !== 0) {
-      contentContainer.appendChild(createTasksContainer(filteredList));
+      contentContainer.appendChild(
+        createTasksContainer(filteredList, CONFIG_TASK_EVENTS),
+      );
     }
-    contentContainer.appendChild(createAddProjectTaskBtn(projectObj.id));
+    contentContainer.appendChild(createAddProjectTaskBtn(projectId));
     return contentContainer;
   }
 
-  function createProjectSidebarView(projects) {
+  function createProjectSidebarView(projectConfig, CONFIG_SIDEBAR_EVENTS) {
     const projectViewContainer = document.createElement("div");
     projectViewContainer.classList.add("projects");
-    projectViewContainer.appendChild(
-      createIconBtn(
-        ["project-view"],
-        ["project-overview", "icon"],
-        ["project-view"],
-        "Projects",
-      ),
+    const projectOverview = createIconBtn(
+      ["project-view"],
+      ["project-overview", "icon"],
+      ["project-view"],
+      "Projects",
     );
-    projectViewContainer.appendChild(createSidebarProjectList(projects));
-    projectViewContainer.appendChild(
-      createIconBtn(["add-project"], ["icon"], ["add-text"], "Add Project"),
+
+    attachEventHandlers(projectOverview, CONFIG_SIDEBAR_EVENTS.viewProjects);
+    projectViewContainer.appendChild(projectOverview);
+
+    const nav = document.createElement("nav");
+    projectViewContainer.appendChild(nav);
+    nav.appendChild(createSidebarProjectList(projectConfig));
+    const addProjectBtn = createIconBtn(
+      ["add-project"],
+      ["icon"],
+      ["add-text"],
+      "Add Project",
     );
+    attachEventHandlers(addProjectBtn, CONFIG_SIDEBAR_EVENTS.addProject);
+    projectViewContainer.appendChild(addProjectBtn);
     return projectViewContainer;
   }
 
-  function createTaskSidebarView() {
-    const taskViews = [
-      { iconClass: "show-all", textContent: "All tasks" },
-      { iconClass: "due-today", textContent: "Due today" },
-      { iconClass: "show-soon", textContent: "Soon" },
-      { iconClass: "show-finished", textContent: "Finished" },
-      { iconClass: "show-search", textContent: "Search" },
-    ];
-
+  function createTaskSidebarView(viewConfig, CONFIG_SIDEBAR_EVENTS) {
     const taskViewContainer = document.createElement("div");
     taskViewContainer.classList.add("tasks");
-    taskViewContainer.appendChild(
-      createIconBtn(["add-task"], ["icon"], ["add-text"], "Add task"),
+    const addTaskBtn = createIconBtn(
+      ["add-task"],
+      ["icon"],
+      ["add-text"],
+      "Add task",
     );
+    attachEventHandlers(addTaskBtn, CONFIG_SIDEBAR_EVENTS.addTask);
+    taskViewContainer.appendChild(addTaskBtn);
 
     const navContainer = document.createElement("nav");
     taskViewContainer.appendChild(navContainer);
     const listContainer = document.createElement("ul");
     navContainer.appendChild(listContainer);
 
-    taskViews.forEach((view) => {
+    viewConfig.forEach((viewObj) => {
       const listItem = document.createElement("li");
 
       listItem.appendChild(
         createIconBtn(
           ["task-view"],
-          ["icon", view.iconClass],
+          ["icon", ...viewObj.cssClassList],
           ["user-name"],
-          view.textContent,
+          viewObj.title,
         ),
       );
+      listItem.setAttribute("data-task-view-id", viewObj.id);
+
+      attachEventHandlers(listItem, viewObj.eventHandlers, viewObj);
+
       listContainer.appendChild(listItem);
     });
 
     return taskViewContainer;
   }
 
-  function generateSideBar(userName, projects) {
+  function generateSideBar(
+    userName,
+    taskConfig,
+    projectConfig,
+    CONFIG_SIDEBAR_EVENTS,
+  ) {
     const sideBar = document.createElement("div");
     sideBar.classList.add("sidebar");
-
-    sideBar.appendChild(
-      createIconBtn(["profile"], ["profile-image"], ["user-name"], userName),
+    const profileBtn = createIconBtn(
+      ["profile"],
+      ["profile-image"],
+      ["user-name"],
+      userName,
     );
-    sideBar.appendChild(createTaskSidebarView());
-    sideBar.appendChild(createProjectSidebarView(projects));
+    attachEventHandlers(
+      profileBtn.firstChild,
+      CONFIG_SIDEBAR_EVENTS.viewProfile,
+    );
+
+    sideBar.appendChild(profileBtn);
+    sideBar.appendChild(
+      createTaskSidebarView(taskConfig, CONFIG_SIDEBAR_EVENTS),
+    );
+    sideBar.appendChild(
+      createProjectSidebarView(projectConfig, CONFIG_SIDEBAR_EVENTS),
+    );
     return sideBar;
   }
 
   function generateModal(projects) {
-
     function radioBtnCreator() {
       let counter = 0;
 
-      return ((project, defaultChoice = false) => {
+      return (project, defaultChoice = false) => {
         const htmlId = `projectChoice${counter}`;
-        let projectId = "";
-        let labelText = "#No project";
 
-        if (project) {
-          projectId = project.id;
-          labelText = `#${project.title}`;
-        }
+        const safeProject = createSafeProjectObj(project);
 
         const container = document.createElement("div");
         container.classList.add("project-radio");
@@ -334,7 +393,7 @@ function createDOMCreator(document) {
         radio.setAttribute("type", "radio");
         radio.setAttribute("id", htmlId);
         radio.setAttribute("name", "project");
-        radio.setAttribute("value", projectId);
+        radio.setAttribute("value", safeProject.id);
         if (defaultChoice) {
           radio.setAttribute("checked", true);
           radio.setAttribute("required", true);
@@ -342,14 +401,14 @@ function createDOMCreator(document) {
 
         const label = document.createElement("label");
         label.setAttribute("for", htmlId);
-        label.textContent = labelText;
+        label.textContent = `#${safeProject.title}`;
 
         container.appendChild(radio);
         container.appendChild(label);
         counter += 1;
 
         return container;
-      });
+      };
     }
 
     const fieldSet = document.createElement("fieldset");
@@ -359,7 +418,7 @@ function createDOMCreator(document) {
 
     fieldSet.appendChild(legend);
 
-    const radioBtnFactory = radioBtnCreator()
+    const radioBtnFactory = radioBtnCreator();
     // default project for tasks without project assigned
     fieldSet.appendChild(radioBtnFactory(null, true));
     // append the remaining projects
@@ -368,12 +427,23 @@ function createDOMCreator(document) {
     return fieldSet;
   }
 
+  function attachEventHandlers(el, events, bindObj = null) {
+    events.forEach((evt) => {
+      el.addEventListener(
+        evt.event,
+        evt.callback.bind(bindObj),
+        evt.useCapture,
+      );
+    });
+  }
+
   return {
     // TODO: create main content
     generateTaskView,
     generateProjectView,
     generateSideBar,
     generateModal,
+    createProjectSidebarView,
   };
 }
 
