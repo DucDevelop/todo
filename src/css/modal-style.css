@@ -16,8 +16,16 @@ div.modal {
     background-color: var(--color-modal-bg-color);
     display: none;
     grid-area: 1 / 1 / 2 / 3;
-  }
+}
 
+
+.visible {
+    display: block;
+}
+
+.hidden {
+    display: block;
+}
 
 
 div.modal textarea {

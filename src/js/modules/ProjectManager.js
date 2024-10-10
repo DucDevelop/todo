@@ -1,7 +1,9 @@
 import hash from "object-hash";
 
 function createProjectManager() {
+
   const projectList = [];
+
 
   function addProject(title) {
     const project = {

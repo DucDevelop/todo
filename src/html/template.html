@@ -91,7 +91,7 @@
         <div class="project-modal">
             <div class="icon close">
             </div>
-          <form>
+          <form id="form-add-project">
             <label for="input-project">Enter project name:</label>
             <input type="text" id="input-project" minlength="1" placeholder="Project name" required >
             <div class="btn-container">
@@ -106,15 +106,15 @@
         <div class="item-modal">
             <div class="icon close">
             </div>
-          <form>
+          <form id="form-add-task">
             <input
               type="text"
-              id="input-project"
+              id="task-title"
               minlength="1"
               required
               placeholder="Title"
             />
-            <textarea rows="5" placeholder="Description..."></textarea>
+            <textarea rows="5" id="task-description" placeholder="Description..."></textarea>
             <div class="props-container">
                 <div class="time-picker">
                     <input
@@ -123,38 +123,39 @@
                       name="deadline-time"
                     required>
                 </div>
-            <fieldset>
+                <!-- TODO: populate in JS -->
+            <fieldset id="project-selection">
                 <legend>Select your project</legend>
                 <div class="project-radio">
-                    <input required checked type="radio" id="contactChoice1" name="project" value="p1">
-                    <label for="contactChoice1">#No project</label>
+                    <input required checked type="radio" id="projectChoice0" name="project" value="">
+                    <label for="projectChoice0">#No project</label>
                 </div>
                 <div class="project-radio">
-                    <input type="radio" id="contactChoice2" name="project" value="p2">
-                    <label for="contactChoice2">#Project 1</label>
+                    <input type="radio" id="projectChoice1" name="project" value="p2">
+                    <label for="projectChoice1">#Project 1</label>
                 </div>
                 <div class="project-radio">
-                    <input type="radio" id="contactChoice3" name="project" value="p3">
-                    <label for="contactChoice3">#Project 2</label>
+                    <input type="radio" id="projectChoice2" name="project" value="p3">
+                    <label for="projectChoice2">#Project 2</label>
                 </div>
             </fieldset>
 
-            <fieldset>
+            <fieldset id="priority-selection">
                 <legend>Select your priority</legend>
                 <div class="priority-radio">
-                    <input required checked type="radio" id="priority-high" name="priority" value="high">
+                    <input required type="radio" id="priority-high" name="priority" value="2">
                     <div class="icon priority-high">
                     </div>
                     <label for="priority-high">High</label>
                 </div>
                 <div class="priority-radio">
-                    <input type="radio" id="priority-mid" name="priority" value="mid">
+                    <input type="radio" id="priority-mid" name="priority" value="1">
                     <div class="icon priority-mid">
                     </div>
                     <label for="priority-mid">Mid</label>
                 </div>
                 <div class="priority-radio">
-                    <input type="radio" id="priority-low" name="priority" value="low">
+                    <input checked type="radio" id="priority-low" name="priority" value="0">
                     <div class="icon priority-low">
                     </div>
                     <label for="priority-low">Low</label>

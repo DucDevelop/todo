@@ -5,8 +5,8 @@ import hash from "object-hash";
 
 function createDOMCreator(document) {
   // e.g. 12 Feb 17:15
-  const dueDateFormatStr = "MMM Lo HH:MM a";
-  const DEFAULT_PROJECT = { id: "", title: "No Project"}
+  const dueDateFormatStr = "EEE, do MMM hb";
+  const DEFAULT_PROJECT = { id: "", title: "No Project" };
 
   function createTaskElement(todo) {
     const taskCard = document.createElement("div");
@@ -21,6 +21,7 @@ function createDOMCreator(document) {
     checkBox.classList.add("icon", "task-checkbox");
     const input = document.createElement("input");
     input.setAttribute("type", "checkbox");
+    input.setAttribute("data-id", todo.id);
     checkBox.appendChild(input);
 
     const taskOverview = document.createElement("div");
@@ -43,6 +44,7 @@ function createDOMCreator(document) {
 
     const taskAction = document.createElement("div");
     taskAction.classList.add("task-action");
+    taskAction.setAttribute("data-id", todo.id);
     const viewTask = document.createElement("div");
     viewTask.classList.add("icon", "view");
     const editTask = document.createElement("div");
@@ -76,25 +78,24 @@ function createDOMCreator(document) {
   function createProjectTasksContainer(taskList, projectObj) {
     const projectTaskContainer = document.createElement("div");
     const heading = document.createElement("h2");
-    heading.textContent = DEFAULT_PROJECT.title
-    let projectClass = DEFAULT_PROJECT.id
-    let filteredTasks = []
+    heading.textContent = DEFAULT_PROJECT.title;
+    let projectClass = DEFAULT_PROJECT.id;
+    let filteredTasks = [];
 
     if (projectObj && projectObj.id) {
-        heading.textContent = projectObj.title
-        projectClass = projectObj.id
-        filteredTasks = taskList.filter((todo) => todo.project && (todo.project.id === projectObj.id));
-        projectTaskContainer.classList.add(projectClass);
+      heading.textContent = projectObj.title;
+      projectClass = projectObj.id;
+      filteredTasks = taskList.filter(
+        (todo) => todo.project && todo.project.id === projectObj.id,
+      );
+      projectTaskContainer.classList.add(projectClass);
+    } else {
+      filteredTasks = taskList.filter((todo) => todo.project == null);
     }
-    else {
-        filteredTasks = taskList.filter((todo) => todo.project == null);
-    }
-    
 
     if (filteredTasks.length === 0) {
       return undefined;
     }
-
 
     projectTaskContainer.appendChild(heading);
     projectTaskContainer.appendChild(createTasksContainer(filteredTasks));
@@ -145,21 +146,23 @@ function createDOMCreator(document) {
     return container;
   }
 
-  function createAddProjectTaskBtn(projectId="") {
+  function createAddProjectTaskBtn(projectId = "") {
     const container = createIconBtn(
       ["add-project-task-container"],
       ["icon", "add-project-task"],
       [],
       "Add task",
     );
-    container.setAttribute("data-project-id", projectId)
+    container.setAttribute("data-project-id", projectId);
 
     return container;
   }
 
   function createSidebarProjectList(projects) {
-
-    function createProjectListItem(title = DEFAULT_PROJECT.title, projectId = DEFAULT_PROJECT.id) {
+    function createProjectListItem(
+      title = DEFAULT_PROJECT.title,
+      projectId = DEFAULT_PROJECT.id,
+    ) {
       const li = document.createElement("li");
       const projectItem = document.createElement("div");
       projectItem.classList.add("project-item");
@@ -222,18 +225,19 @@ function createDOMCreator(document) {
     const contentContainer = document.createElement("div");
     contentContainer.setAttribute("id", "contents");
     const heading = document.createElement("h1");
-    let filteredList = []
+    let filteredList = [];
 
-    if(projectObj.id) {
-        heading.textContent = projectObj.title;
-        filteredList = tasklist.filter((todo) => todo.project === projectObj.title);
-    }
-    else {
-        heading.textContent = DEFAULT_PROJECT.title;
-        filteredList = tasklist.filter((todo) => todo.project == null);
+    if (projectObj.id) {
+      heading.textContent = projectObj.title;
+      filteredList = tasklist.filter(
+        (todo) => todo.project === projectObj.title,
+      );
+    } else {
+      heading.textContent = DEFAULT_PROJECT.title;
+      filteredList = tasklist.filter((todo) => todo.project == null);
     }
     contentContainer.appendChild(heading);
-    
+
     if (filteredList.length !== 0) {
       contentContainer.appendChild(createTasksContainer(filteredList));
     }
@@ -308,11 +312,68 @@ function createDOMCreator(document) {
     return sideBar;
   }
 
+  function generateModal(projects) {
+
+    function radioBtnCreator() {
+      let counter = 0;
+
+      return ((project, defaultChoice = false) => {
+        const htmlId = `projectChoice${counter}`;
+        let projectId = "";
+        let labelText = "#No project";
+
+        if (project) {
+          projectId = project.id;
+          labelText = `#${project.title}`;
+        }
+
+        const container = document.createElement("div");
+        container.classList.add("project-radio");
+
+        const radio = document.createElement("input");
+        radio.setAttribute("type", "radio");
+        radio.setAttribute("id", htmlId);
+        radio.setAttribute("name", "project");
+        radio.setAttribute("value", projectId);
+        if (defaultChoice) {
+          radio.setAttribute("checked", true);
+          radio.setAttribute("required", true);
+        }
+
+        const label = document.createElement("label");
+        label.setAttribute("for", htmlId);
+        label.textContent = labelText;
+
+        container.appendChild(radio);
+        container.appendChild(label);
+        counter += 1;
+
+        return container;
+      });
+    }
+
+    const fieldSet = document.createElement("fieldset");
+    fieldSet.setAttribute("id", "project-selection");
+    const legend = document.createElement("legend");
+    legend.textContent = "Select your project";
+
+    fieldSet.appendChild(legend);
+
+    const radioBtnFactory = radioBtnCreator()
+    // default project for tasks without project assigned
+    fieldSet.appendChild(radioBtnFactory(null, true));
+    // append the remaining projects
+    projects.forEach((p) => fieldSet.appendChild(radioBtnFactory(p, false)));
+
+    return fieldSet;
+  }
+
   return {
     // TODO: create main content
     generateTaskView,
     generateProjectView,
     generateSideBar,
+    generateModal,
   };
 }
 

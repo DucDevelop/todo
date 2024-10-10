@@ -87,6 +87,11 @@ function createTasks(list = null) {
     taskList.splice(0, taskList.length);
   }
 
+  function deleteTask(id) {
+    taskList.splice(taskList.findIndex((task) => task.id === id), 1);
+  }
+
+
   return {
     taskList,
     getTaskProp,
@@ -96,6 +101,8 @@ function createTasks(list = null) {
     getTaskList,
     createTask,
     clearTaskList,
+    populateTasks,
+    deleteTask,
   };
 }
 
