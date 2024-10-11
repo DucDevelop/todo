@@ -12,9 +12,7 @@ function createDOMCreator(document) {
     const taskCard = document.createElement("div");
     taskCard.classList.add("task-card");
     taskCard.setAttribute("data-id", todo.id);
-    if (todo.isDone) {
-      taskCard.classList.add("completed");
-    }
+
 
     // checkbox button
     const checkBox = document.createElement("div");
@@ -24,6 +22,11 @@ function createDOMCreator(document) {
     input.setAttribute("data-id", todo.id);
     checkBox.appendChild(input);
     attachEventHandlers(input, CONFIG_TASK_EVENTS.taskCheck, input);
+
+    if (todo.isDone) {
+        taskCard.classList.add("completed");
+        input.checked = true
+    }
 
     const taskOverview = document.createElement("div");
     taskOverview.classList.add("task-short-info");
@@ -256,7 +259,7 @@ function createDOMCreator(document) {
     CONFIG_TASK_EVENTS,
   ) {
     const contentContainer = document.createElement("div");
-    contentContainer.setAttribute("id", "contents");
+    contentContainer.setAttribute("id", "content");
     const heading = document.createElement("h1");
     let filteredList = [];
     let projectId = "";
@@ -377,6 +380,195 @@ function createDOMCreator(document) {
     return sideBar;
   }
 
+
+
+  // parent factory to delegate to respective function generateModal(type, projects, task, eventConfig)
+
+  function generateViewTaskModal(task, eventHandlers) {
+    
+  }
+
+  function createCloseIcon() {
+    return createDOMElement('div', ["icon", "close"] )
+  }
+
+  function generateAddProjectModal(eventConfig) {
+    const container = document.createElement('div')
+    container.classList.add("modal")
+    container.setAttribute("id", "add-project")
+
+    const modal = document.createElement('div')
+    modal.classList.add("project-modal")
+
+    const closeIcon = createCloseIcon()
+    attachEventHandlers(closeIcon, eventConfig.onClose)
+
+    const form = document.createElement('form')
+    form.setAttribute("id", "form-add-project")
+
+    const label = document.createElement('label')
+    label.textContent = "Enter project name:"
+    label.setAttribute("for", "input-project")
+
+    const textInput = document.createElement('input')
+    textInput.setAttribute("id", "input-project")
+    textInput.setAttribute("type", "text")
+    textInput.setAttribute("minlength", "1")
+    textInput.setAttribute("placeholder", "Project name")
+    textInput.setAttribute("required", true)
+
+    const btnContainer = document.createElement('div')
+    btnContainer.classList.add("btn-container") 
+    const btn = document.createElement("button")
+    btn.textContent = "Add project"
+    attachEventHandlers(form, eventConfig.onSubmit)
+ 
+
+    btnContainer.appendChild(btn)
+
+    form.appendChild(label)
+    form.appendChild(textInput)
+    form.appendChild(btnContainer)
+
+    modal.appendChild(closeIcon)
+    modal.appendChild(form)
+
+    container.appendChild(modal)
+
+    return container
+  }
+
+  function createDOMElement(element, classList =[], attributes = [])
+{
+    const el = document.createElement(element)
+    el.classList.add(...classList)
+    attributes.forEach(({attribute, value}) => el.setAttribute(attribute,value))
+    return el
+}
+
+  function generateAddTaskModal(projectList, eventConfig) {
+    const container = createDOMElement('div', ["modal"], [{attribute:"id", value:"add-task"}])
+    const modal = createDOMElement('div', ["item-modal"])
+    container.appendChild(modal)
+
+    const closeIcon = createCloseIcon()
+    attachEventHandlers(closeIcon, eventConfig.onClose)
+    modal.appendChild(closeIcon)
+
+    const form = createDOMElement('form', [], [{attribute:"id", value:"form-add-task"}])
+    modal.appendChild(form)
+    const inputText = createDOMElement('input', [], [
+        {attribute:"id", value:"task-title"},
+        {attribute:"type", value:"text"},
+        {attribute:"minlength", value:"1"},
+        {attribute:"required", value:true},
+        {attribute:"placeholder", value:"Title"},
+    ])
+    form.appendChild(inputText)
+    const textArea = createDOMElement('textarea', [],[
+        {attribute:"id", value:"task-description"},
+        {attribute:"rows", value:"5"},
+        {attribute:"placeholder", value:"Description..."},
+    ])
+    form.appendChild(textArea)
+
+    const propsContainer = createDOMElement('div', ["props-container"])
+    form.appendChild(propsContainer)
+    const timeContainer = createDOMElement('div', ["time-picker"])
+    
+    const timePicker = createDOMElement('input', [], [
+        {attribute:"id", value:"deadline-time"},
+        {attribute:"type", value:"datetime-local"},
+        {attribute:"required", value:true},
+        {attribute:"name", value:"deadline-time"},
+    ])
+    timeContainer.appendChild(timePicker)
+    propsContainer.appendChild(timeContainer)
+
+
+    const projectSelectionFieldset = generateModal(projectList)
+    propsContainer.appendChild(projectSelectionFieldset)
+    
+    const priorities = [
+        {
+            name: "priority",
+            value: "2",
+            id: "priority-high",
+            text: "High",
+            default: false,
+        },
+        {
+            name: "priority",
+            value: "1",
+            id: "priority-mid",
+            text: "Mid",
+            default: false,
+        },
+        {
+            name: "priority",
+            value: "0",
+            id: "priority-low",
+            text: "Low",
+            default: true,
+        },
+    ]
+    const prioritySelectionFieldset = generatePriorityFieldset(priorities)
+    propsContainer.appendChild(prioritySelectionFieldset)
+    
+    
+    function generatePriorityFieldset(config) {
+        const fieldSet = createDOMElement('fieldset', [], [{attribute: "id", value: "priority-selection"}])
+        const legend = document.createElement("legend")
+        legend.textContent = "Select your priority"
+        fieldSet.appendChild(legend)
+
+        config.forEach(prio => {
+            const containerPrio = createDOMElement('div', ["priority-radio"])
+            const radioBtn = createDOMElement('input', [], [
+                {attribute:"id", value:`${prio.id}`},
+                {attribute:"type", value:"radio"},
+                {attribute:"required", value: prio.default},
+                {attribute:"checked", value: prio.default},
+                {attribute:"name", value:`${prio.name}`},
+                {attribute:"value", value:`${prio.value}`},
+            ])
+            
+            const imageDiv = createDOMElement('div', ["icon", `${prio.id}`])
+            const label = createDOMElement('label', [], [{attribute:"for", value:`${prio.id}`},])
+            label.textContent = prio.text
+
+            containerPrio.appendChild(radioBtn)
+            containerPrio.appendChild(imageDiv)
+            containerPrio.appendChild(label)
+
+            fieldSet.appendChild(containerPrio)
+
+        })
+
+        return fieldSet
+    }
+
+    const btnContainer = createDOMElement('div', ["btn-container"])
+    const btn = createDOMElement('button')
+    btn.textContent = "Add project"
+
+    attachEventHandlers(btn, eventConfig.onSubmit)
+
+    btnContainer.appendChild(btn)
+
+    form.appendChild(btnContainer)
+    return container
+
+
+  }
+
+  function generateViewProjectModal(projectList, eventHandlers) {
+
+  }
+
+
+
+
   function generateModal(projects) {
     function radioBtnCreator() {
       let counter = 0;
@@ -444,6 +636,8 @@ function createDOMCreator(document) {
     generateSideBar,
     generateModal,
     createProjectSidebarView,
+    generateAddProjectModal,
+    generateAddTaskModal,
   };
 }
 

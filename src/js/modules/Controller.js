@@ -8,6 +8,18 @@ function createController(
 ) {
   pullFromDb();
 
+  function onProjectSubmit(event) {
+    event.preventDefault();
+    const projectInput = document.getElementById("input-project");
+    projectManager.addProject(projectInput.value);
+    projectInput.value = "";
+    hideModal();
+    // pushToDb();
+    renderSidebarProjectList();
+    renderModalAddTask();
+  }
+
+
   const CONFIG_TASK_VIEW = [
     {
       id: "0",
@@ -16,7 +28,7 @@ function createController(
       type: "task",
       cssClassList: ["show-all"],
       taskFilter(task) {
-        return Boolean(task);
+        return !task.isDone;
       },
       eventHandlers: [
         {
@@ -123,42 +135,42 @@ function createController(
 
   const CONFIG_SIDEBAR_EVENTS = {
     addTask: [
-        {
-            event: "click",
-            callback() {
-              showModal();
-            },
-            useCapture: false,
+      {
+        event: "click",
+        callback() {
+          showModal();
         },
-      ],
+        useCapture: false,
+      },
+    ],
     addProject: [
-        {
-            event: "click",
-            callback() {
-              showModal(false);
-            },
-            useCapture: false,
+      {
+        event: "click",
+        callback() {
+          showModal(false);
         },
+        useCapture: false,
+      },
     ],
     viewProjects: [
-        {
-            event: "click",
-            callback() {
-              console.log("TODO: SHow modal with project list")
-            },
-            useCapture: false,
+      {
+        event: "click",
+        callback() {
+          console.log("TODO: SHow modal with project list");
         },
+        useCapture: false,
+      },
     ],
     viewProfile: [
-        {
-            event: "click",
-            callback() {
-              console.log("TODO: Profile action")
-            },
-            useCapture: false,
+      {
+        event: "click",
+        callback() {
+          console.log("TODO: Profile action");
         },
+        useCapture: false,
+      },
     ],
-  }
+  };
   const CONFIG_TASK_EVENTS = {
     taskEdit: [
       {
@@ -199,18 +211,18 @@ function createController(
     ],
     taskCheck: [
       {
-          event: "click",
-          callback() {
-            const taskId = this.getAttribute("data-id");
-            taskManager.setTaskProp(
-              taskId,
-              "isDone",
-              !taskManager.getTask(taskId).isDone,
-            );
-            this.parentNode.parentNode.classList.toggle("completed");
-            //   TODO: rerender after X seconds
-          },
-          useCapture: false,
+        event: "click",
+        callback() {
+          const taskId = this.getAttribute("data-id");
+          taskManager.setTaskProp(
+            taskId,
+            "isDone",
+            !taskManager.getTask(taskId).isDone,
+          );
+          this.parentNode.parentNode.classList.toggle("completed");
+          //   TODO: rerender after X seconds
+        },
+        useCapture: false,
       },
     ],
     projectTaskAdd: [
@@ -229,12 +241,47 @@ function createController(
     ],
   };
 
+  const CONFIG_MODAL_EVENTS_ADD_TASK = {
+    onSubmit: [
+      {
+        event: "submit",
+        callback() {
+          onTaskSubmit(null);
+        },
+        useCapture: false,
+      },
+    ],
+  };
+  const CONFIG_MODAL_EVENTS_ADD_PROJECT = {
+    onSubmit: [
+      {
+        event: "submit",
+        callback(e) {
+          onProjectSubmit(e);
+        },
+        useCapture: false,
+      },
+    ],
+  };
+  const CONFIG_MODAL_EVENTS_EDIT_PROJECT = {};
+  const CONFIG_MODAL_EVENTS_VIEW_PROJECTS = {};
+  const CONFIG_MODAL_EVENTS_COMMON = {
+    onClose: [
+      {
+        event: "click",
+        callback() {
+          hideModal();
+        },
+        useCapture: false,
+      },
+    ],
+  };
 
-  const CONFIG_MODAL_EVENTS_ADD_TASK = {}
-  const CONFIG_MODAL_EVENTS_ADD_PROJECT = {}
-  const CONFIG_MODAL_EVENTS_EDIT_PROJECT = {}
-  const CONFIG_MODAL_EVENTS_VIEW_PROJECTS= {}
-  const CONFIG_MODAL_EVENTS_COMMON= {}
+  function renderElement(elementSelector, generatorFn, generatorArgs) {
+    const oldElement = document.querySelector(elementSelector);
+    const newElement = generatorFn(...generatorArgs);
+    oldElement.parentNode.replaceChild(newElement, oldElement);
+  }
 
   const showModal = (showTask = true) => {
     const modal = showTask
@@ -271,24 +318,19 @@ function createController(
   }
 
   function renderSideBar() {
-    const body = document.querySelector("body");
-    const sidebar = document.querySelector("div.sidebar");
-    const newSidebar = DOMCreator.generateSideBar(
+    renderElement("div.sidebar", DOMCreator.generateSideBar, [
       "DucDevelop",
       CONFIG_TASK_VIEW,
       CONFIG_PROJECT_VIEW,
-      CONFIG_SIDEBAR_EVENTS
-    );
-    body.replaceChild(newSidebar, sidebar);
+      CONFIG_SIDEBAR_EVENTS,
+    ]);
   }
 
   function renderSidebarProjectList() {
-    const projectsList = document.querySelector("div.projects");
-
-    projectsList.parentNode.replaceChild(
-      DOMCreator.createProjectSidebarView(projectManager.getProjectList()),
-      projectsList,
-    );
+    renderElement("div.projects", DOMCreator.createProjectSidebarView, [
+        CONFIG_PROJECT_VIEW,
+      CONFIG_SIDEBAR_EVENTS,
+    ]);
   }
 
   function addProject(title) {
@@ -336,19 +378,7 @@ function createController(
 
     // close modal
     hideModal();
-    pushToDb();
-  }
-  function onProjectSubmit(event) {
-    event.preventDefault();
-    const projectInput = document.getElementById("input-project");
-    projectManager.addProject(projectInput.value);
-    projectInput.value = "";
-    hideModal();
-
-    pushToDb();
-    renderSidebarProjectList();
-    renderTaskModal();
-    // TODO: reattach event listeners
+    // pushToDb();
   }
 
   function clearUserInput() {
@@ -389,53 +419,45 @@ function createController(
   }
 
   function renderView(option, CONFIG_TASK_EVENTS) {
-    let view = null;
-    let viewSelection = null;
 
-    const views = Array.from(
-      document.querySelectorAll("div.sidebar nav ul > li"),
-    );
-    views.forEach((sidebarView) => sidebarView.classList.remove("selected"));
+    function highlightSidebarSelection(selector) {
+        const views = Array.from(
+            document.querySelectorAll("div.sidebar nav ul > li"),
+          );
+          views.forEach((sidebarView) => sidebarView.classList.remove("selected"));
+          document.querySelector(selector).classList.add("selected");
+    }
+
+    let viewSelection = null;
+    let generatorFn = null;
+    let fnArgs = [];
 
     if (option && option.type === "task") {
-      view = DOMCreator.generateTaskView(
+      generatorFn = DOMCreator.generateTaskView;
+      fnArgs = [
         taskManager.getTaskList(),
         projectManager.getProjectList(),
         option,
         CONFIG_TASK_EVENTS,
-      );
-
+      ];
       viewSelection = `div.sidebar nav ul > li[data-task-view-id="${option.id}"]`;
     } else if (option) {
-      // project view
-      view = DOMCreator.generateProjectView(
+      generatorFn = DOMCreator.generateProjectView;
+      fnArgs = [
         taskManager.getTaskList(),
         projectManager.getProject(option.id),
         CONFIG_TASK_EVENTS,
-      );
+      ];
       viewSelection = `div.sidebar nav ul > li[data-project-view-id="${option.id}"]`;
     } else {
       // "no project" view
-      view = DOMCreator.generateProjectView(taskManager.getTaskList(), null, CONFIG_TASK_EVENTS);
+      generatorFn = DOMCreator.generateProjectView;
+      fnArgs = [taskManager.getTaskList(), null, CONFIG_TASK_EVENTS];
       viewSelection = `div.sidebar nav ul > li[data-project-view-id=""]`;
     }
-
+    renderElement("div#content", generatorFn, fnArgs);
     // mark selected
-    document.querySelector(viewSelection).classList.add("selected");
-
-    const newContent = document.createElement("div");
-    newContent.setAttribute("id", "content");
-    newContent.appendChild(view);
-    const content = document.querySelector("div#content");
-    content.parentNode.replaceChild(newContent, content);
-  }
-
-  function renderTaskModal() {
-    const newProjectRadios = DOMCreator.generateModal(
-      projectManager.getProjectList(),
-    );
-    const old = document.querySelector("fieldset#project-selection");
-    old.parentNode.replaceChild(newProjectRadios, old);
+    highlightSidebarSelection(viewSelection)
   }
 
   function checkProjectRadio(projectId) {
@@ -444,17 +466,7 @@ function createController(
     ).checked = true;
   }
 
-  function initPage() {
-    pullFromDb();
-    // render page
-    renderTaskModal();
-    renderSideBar();
 
-    // TODO: make it general
-    renderView(CONFIG_TASK_VIEW[0], CONFIG_TASK_EVENTS);
-    // attach event listeners
-    // setupEvents();
-  }
 
   function populateTaskModal(taskObj) {
     if (taskObj) {
@@ -479,69 +491,36 @@ function createController(
     }
   }
 
-  function setupEvents() {
-    // TODO: Split up and move to DOM creator
-    const CONFIG_EVENT = [
+  function renderModalAddProject() {
+    renderElement("div#add-project", DOMCreator.generateAddProjectModal, [
       {
-        // cancel button in modal cancelAdd
-        elements: Array.from(document.querySelectorAll("div.icon.close")),
-        event: "click",
-        callback() {
-          hideModal();
-        },
-        useCapture: false,
+        ...CONFIG_MODAL_EVENTS_ADD_PROJECT,
+        ...CONFIG_MODAL_EVENTS_COMMON,
       },
-      
-      {
-        // submit add task
-        elements: [document.getElementById("form-add-task")],
-        event: "submit",
-        callback(e) {
-          onTaskSubmit(e);
-        },
-        useCapture: false,
-      },
-      {
-        // submit add project
-        elements: [document.getElementById("form-add-project")],
-        event: "submit",
-        callback(e) {
-          onProjectSubmit(e);
-        },
-        useCapture: false,
-      },
-    ];
-
-    CONFIG_EVENT.forEach((config) => {
-      config.elements.forEach((el) => {
-        el.addEventListener(
-          config.event,
-          config.callback.bind(el),
-          config.useCapture,
-        );
-      });
-    });
+    ]);
   }
 
+  function renderModalAddTask() {
+    renderElement("div#add-task", DOMCreator.generateAddTaskModal, [
+      projectManager.getProjectList(),
+      {
+        ...CONFIG_MODAL_EVENTS_ADD_TASK,
+        ...CONFIG_MODAL_EVENTS_COMMON,
+      },
+    ]);
+  }
 
-
-
-
+  function initPage() {
+    pullFromDb();
+    // render page
+    renderSideBar();
+    renderView(CONFIG_TASK_VIEW[1], CONFIG_TASK_EVENTS);
+    renderModalAddProject();
+    renderModalAddTask();
+  }
 
   return {
-    addProject,
-    renderSideBar,
-    renderView,
-    onProjectSubmit,
-    clearUserInput,
-    onTaskSubmit,
-    renderTaskModal,
-    pushToDb,
-    pullFromDb,
     initPage,
-    showModal,
-    hideModal,
-    setupEvents,
   };
 }
 
