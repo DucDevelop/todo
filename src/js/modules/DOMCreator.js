@@ -106,6 +106,8 @@ function createDOMCreator(document) {
       );
     }
 
+
+
     if (filteredTasks.length === 0) {
       return undefined;
     }
@@ -187,43 +189,7 @@ function createDOMCreator(document) {
     return container;
   }
 
-  function createSidebarProjectList(projectConfig) {
-    function createProjectListItem(project) {
-      const safeProject = createSafeProjectObj(project);
-      const li = document.createElement("li");
-      const projectItem = document.createElement("div");
-      projectItem.classList.add("project-item");
 
-      li.setAttribute("data-project-view-id", safeProject.id);
-
-      attachEventHandlers(li, projectConfig.eventHandlers, safeProject.obj);
-
-      const icon = document.createElement("div");
-      icon.classList.add("project-item", "icon");
-
-      const text = document.createElement("span");
-      text.classList.add("project-name");
-      text.textContent = safeProject.title;
-
-      projectItem.appendChild(icon);
-      projectItem.appendChild(text);
-      li.appendChild(projectItem);
-      return li;
-    }
-
-    const projectsContainer = document.createElement("nav");
-    const projectList = document.createElement("ul");
-    projectsContainer.appendChild(projectList);
-
-    // default project if task has no project assigned
-    projectList.appendChild(createProjectListItem(null));
-
-    projectConfig.projects.forEach((prj) => {
-      projectList.appendChild(createProjectListItem(prj));
-    });
-
-    return projectList;
-  }
 
   function generateTaskView(
     tasklist,
@@ -282,11 +248,52 @@ function createDOMCreator(document) {
         createTasksContainer(filteredList, CONFIG_TASK_EVENTS),
       );
     }
-    contentContainer.appendChild(createAddProjectTaskBtn(projectId));
+    contentContainer.appendChild(createAddProjectTaskBtn(projectId, CONFIG_TASK_EVENTS.projectTaskAdd));
     return contentContainer;
   }
 
-  function createProjectSidebarView(projectConfig, CONFIG_SIDEBAR_EVENTS) {
+  function createProjectSidebarView(projectList, CONFIG_SIDEBAR_EVENTS) {
+
+    function createSidebarProjectList(projects, CONFIG_SIDEBAR_EVENTS) {
+    
+        function createProjectListItem(project, cb) {
+          const safeProject = createSafeProjectObj(project);
+          const li = document.createElement("li");
+          const projectItem = document.createElement("div");
+          projectItem.classList.add("project-item");
+    
+          li.setAttribute("data-project-view-id", safeProject.id);
+    
+          attachEventHandlers(li, cb, safeProject.obj);
+    
+          const icon = document.createElement("div");
+          icon.classList.add("project-item", "icon");
+    
+          const text = document.createElement("span");
+          text.classList.add("project-name");
+          text.textContent = safeProject.title;
+    
+          projectItem.appendChild(icon);
+          projectItem.appendChild(text);
+          li.appendChild(projectItem);
+          return li;
+        }
+    
+        const projectsContainer = document.createElement("nav");
+        const projectList = document.createElement("ul");
+        projectsContainer.appendChild(projectList);
+    
+        // default project if task has no project assigned
+        projectList.appendChild(createProjectListItem(null, CONFIG_SIDEBAR_EVENTS.showProjectTaskView));
+    
+        projects.forEach((prj) => {
+          projectList.appendChild(createProjectListItem(prj, CONFIG_SIDEBAR_EVENTS.showProjectTaskView));
+        });
+    
+        return projectList;
+      }
+
+
     const projectViewContainer = document.createElement("div");
     projectViewContainer.classList.add("projects");
     const projectOverview = createIconBtn(
@@ -301,17 +308,24 @@ function createDOMCreator(document) {
 
     const nav = document.createElement("nav");
     projectViewContainer.appendChild(nav);
-    nav.appendChild(createSidebarProjectList(projectConfig));
+
+    nav.appendChild(createSidebarProjectList(projectList, CONFIG_SIDEBAR_EVENTS));
+
     const addProjectBtn = createIconBtn(
       ["add-project"],
       ["icon"],
       ["add-text"],
       "Add Project",
     );
+
     attachEventHandlers(addProjectBtn, CONFIG_SIDEBAR_EVENTS.addProject);
+
     projectViewContainer.appendChild(addProjectBtn);
     return projectViewContainer;
   }
+
+
+
 
   function createTaskSidebarView(viewConfig, CONFIG_SIDEBAR_EVENTS) {
     const taskViewContainer = document.createElement("div");
@@ -322,6 +336,7 @@ function createDOMCreator(document) {
       ["add-text"],
       "Add task",
     );
+
     attachEventHandlers(addTaskBtn, CONFIG_SIDEBAR_EVENTS.addTask);
     taskViewContainer.appendChild(addTaskBtn);
 
@@ -343,7 +358,7 @@ function createDOMCreator(document) {
       );
       listItem.setAttribute("data-task-view-id", viewObj.id);
 
-      attachEventHandlers(listItem, viewObj.eventHandlers, viewObj);
+      attachEventHandlers(listItem, CONFIG_SIDEBAR_EVENTS.showTaskView, viewObj);
 
       listContainer.appendChild(listItem);
     });
@@ -354,7 +369,7 @@ function createDOMCreator(document) {
   function generateSideBar(
     userName,
     taskConfig,
-    projectConfig,
+    projectList,
     CONFIG_SIDEBAR_EVENTS,
   ) {
     const sideBar = document.createElement("div");
@@ -375,7 +390,7 @@ function createDOMCreator(document) {
       createTaskSidebarView(taskConfig, CONFIG_SIDEBAR_EVENTS),
     );
     sideBar.appendChild(
-      createProjectSidebarView(projectConfig, CONFIG_SIDEBAR_EVENTS),
+      createProjectSidebarView(projectList, CONFIG_SIDEBAR_EVENTS),
     );
     return sideBar;
   }
@@ -535,10 +550,10 @@ function createDOMCreator(document) {
             
             const imageDiv = createDOMElement('div', ["icon", `${prio.id}`])
             const label = createDOMElement('label', [], [{attribute:"for", value:`${prio.id}`},])
+            
             label.textContent = prio.text
-
+            label.appendChild(imageDiv)
             containerPrio.appendChild(radioBtn)
-            containerPrio.appendChild(imageDiv)
             containerPrio.appendChild(label)
 
             fieldSet.appendChild(containerPrio)
@@ -550,9 +565,9 @@ function createDOMCreator(document) {
 
     const btnContainer = createDOMElement('div', ["btn-container"])
     const btn = createDOMElement('button')
-    btn.textContent = "Add project"
+    btn.textContent = "Add task"
 
-    attachEventHandlers(btn, eventConfig.onSubmit)
+    attachEventHandlers(form, eventConfig.onSubmit)
 
     btnContainer.appendChild(btn)
 

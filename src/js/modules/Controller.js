@@ -8,6 +8,16 @@ function createController(
 ) {
   pullFromDb();
 
+    // set to default view
+    let currentView = null
+    function setCurrentView(obj) {
+        currentView = obj;
+    }
+    function getCurrentView() {
+        return currentView;
+    }
+
+
   function onProjectSubmit(event) {
     event.preventDefault();
     const projectInput = document.getElementById("input-project");
@@ -17,6 +27,7 @@ function createController(
     // pushToDb();
     renderSidebarProjectList();
     renderModalAddTask();
+    renderView()
   }
 
 
@@ -30,15 +41,6 @@ function createController(
       taskFilter(task) {
         return !task.isDone;
       },
-      eventHandlers: [
-        {
-          event: "click",
-          callback() {
-            renderView(this, CONFIG_TASK_EVENTS);
-          },
-          useCapute: false,
-        },
-      ],
     },
     {
       id: "1",
@@ -49,15 +51,6 @@ function createController(
       taskFilter(task) {
         return compareAsc(new Date(), task.dueDate) >= 0;
       },
-      eventHandlers: [
-        {
-          event: "click",
-          callback() {
-            renderView(this, CONFIG_TASK_EVENTS);
-          },
-          useCapute: false,
-        },
-      ],
     },
     {
       id: "2",
@@ -68,15 +61,7 @@ function createController(
       taskFilter(task) {
         return compareAsc(new Date(), task.dueDate) === -1;
       },
-      eventHandlers: [
-        {
-          event: "click",
-          callback() {
-            renderView(this, CONFIG_TASK_EVENTS);
-          },
-          useCapute: false,
-        },
-      ],
+      
     },
     {
       id: "3",
@@ -87,15 +72,6 @@ function createController(
       taskFilter(task) {
         return task.isDone;
       },
-      eventHandlers: [
-        {
-          event: "click",
-          callback() {
-            renderView(this, CONFIG_TASK_EVENTS);
-          },
-          useCapute: false,
-        },
-      ],
     },
     {
       id: "4",
@@ -107,33 +83,32 @@ function createController(
         // FIXME: figure out how to filter
         return true;
       },
-      eventHandlers: [
-        {
-          event: "click",
-          callback() {
-            renderView(this, CONFIG_TASK_EVENTS);
-          },
-          useCapute: false,
-        },
-      ],
     },
   ];
 
-  const CONFIG_PROJECT_VIEW = {
-    projects: projectManager.getProjectList(),
 
-    eventHandlers: [
+  const CONFIG_SIDEBAR_EVENTS = {
+
+    showProjectTaskView: [
       {
         event: "click",
         callback() {
-          renderView(this, CONFIG_TASK_EVENTS);
+            setCurrentView(this)
+            renderView();
         },
-        useCapute: false,
+        useCapture: false,
       },
     ],
-  };
-
-  const CONFIG_SIDEBAR_EVENTS = {
+    showTaskView: [
+      {
+        event: "click",
+        callback() {
+            setCurrentView(this)
+            renderView();
+        },
+        useCapture: false,
+      },
+    ],
     addTask: [
       {
         event: "click",
@@ -171,6 +146,8 @@ function createController(
       },
     ],
   };
+
+
   const CONFIG_TASK_EVENTS = {
     taskEdit: [
       {
@@ -245,8 +222,8 @@ function createController(
     onSubmit: [
       {
         event: "submit",
-        callback() {
-          onTaskSubmit(null);
+        callback(e) {
+          onTaskSubmit(e);
         },
         useCapture: false,
       },
@@ -276,6 +253,11 @@ function createController(
       },
     ],
   };
+
+
+
+
+
 
   function renderElement(elementSelector, generatorFn, generatorArgs) {
     const oldElement = document.querySelector(elementSelector);
@@ -321,31 +303,19 @@ function createController(
     renderElement("div.sidebar", DOMCreator.generateSideBar, [
       "DucDevelop",
       CONFIG_TASK_VIEW,
-      CONFIG_PROJECT_VIEW,
+      projectManager.getProjectList(),
       CONFIG_SIDEBAR_EVENTS,
     ]);
   }
 
   function renderSidebarProjectList() {
     renderElement("div.projects", DOMCreator.createProjectSidebarView, [
-        CONFIG_PROJECT_VIEW,
+        projectManager.getProjectList(),
       CONFIG_SIDEBAR_EVENTS,
     ]);
   }
 
-  function addProject(title) {
-    if (!projectManager.getProjectByTitle(title)) {
-      projectManager.addProject(title);
-      storageManager.storeProjects(projectManager.getProjectList());
-      const projectList = DOMCreator.createSidebarProjectList(
-        projectManager.getProjectList(),
-      );
-      // rerender Logic
-      renderSideBar(projectList);
-    } else {
-      // duplicate project do nothing
-    }
-  }
+
 
   function onTaskSubmit(event) {
     event.preventDefault();
@@ -379,6 +349,7 @@ function createController(
     // close modal
     hideModal();
     // pushToDb();
+    renderView()
   }
 
   function clearUserInput() {
@@ -418,7 +389,7 @@ function createController(
     modal.setAttribute("style", `display:${style}`);
   }
 
-  function renderView(option, CONFIG_TASK_EVENTS) {
+  function renderView() {
 
     function highlightSidebarSelection(selector) {
         const views = Array.from(
@@ -431,6 +402,7 @@ function createController(
     let viewSelection = null;
     let generatorFn = null;
     let fnArgs = [];
+    const option = getCurrentView()
 
     if (option && option.type === "task") {
       generatorFn = DOMCreator.generateTaskView;
@@ -459,13 +431,6 @@ function createController(
     // mark selected
     highlightSidebarSelection(viewSelection)
   }
-
-  function checkProjectRadio(projectId) {
-    document.querySelector(
-      `form input[type="radio"][value="${projectId}"]`,
-    ).checked = true;
-  }
-
 
 
   function populateTaskModal(taskObj) {
@@ -514,7 +479,8 @@ function createController(
     pullFromDb();
     // render page
     renderSideBar();
-    renderView(CONFIG_TASK_VIEW[1], CONFIG_TASK_EVENTS);
+    setCurrentView(CONFIG_TASK_VIEW[1])
+    renderView();
     renderModalAddProject();
     renderModalAddTask();
   }

@@ -47,18 +47,21 @@ function createTasks(list = null) {
   }
 
   function populateTasks(todoList) {
-    todoList.forEach((todo) => {
-      addTask(
-        createTask(
-          todo.title,
-          todo.description,
-          todo.dueDate,
-          todo.isDone,
-          todo.project,
-          todo.priority,
-        ),
-      );
-    });
+    if(todoList) {
+      todoList.forEach((todo) => {
+        addTask(
+          createTask(
+            todo.title,
+            todo.description,
+            todo.dueDate,
+            todo.isDone,
+            todo.project,
+            todo.priority,
+          ),
+        );
+      });
+    }
+
   }
 
   function setTaskProp(id, prop, newVal) {

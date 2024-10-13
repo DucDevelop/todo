@@ -6,12 +6,18 @@ function createProjectManager() {
 
 
   function addProject(title) {
-    const project = {
-      id: hash(title),
-      title,
-    };
-    projectList.push(project);
-    return project;
+    // prevent duplicate entries
+    const project = getProjectByTitle(title);
+    if(!project) {
+        const newProject = {
+            id: hash(title),
+            title,
+          };
+          projectList.push(newProject);
+        return newProject;
+    }
+    return project
+
   }
 
   function getProjectIds() {
@@ -37,14 +43,16 @@ function createProjectManager() {
 
   function loadProjects(list) {
     const allIds = getProjectIds();
+    if(list) {
+        list.forEach((project) => {
+            if (
+              !allIds.includes(hash(project.title) && !allIds.includes(project.id))
+            ) {
+              addProject(project.title);
+            }
+          });
+    }
 
-    list.forEach((project) => {
-      if (
-        !allIds.includes(hash(project.title) && !allIds.includes(project.id))
-      ) {
-        addProject(project.title);
-      }
-    });
   }
   function clearAllProjects() {
     projectList.splice(0, projectList.length);
